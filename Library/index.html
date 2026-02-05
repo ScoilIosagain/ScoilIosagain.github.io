@@ -211,13 +211,13 @@
                   {item.title}
                 </h3>
                 
-                {/* Updated: Added gap-4 for padding between price and button */}
-                <div className="pt-3 flex items-center justify-between mt-2 gap-4">
+                {/* Updated: Flex-col on mobile to prevent button overflow, row on sm screens */}
+                <div className="pt-3 flex flex-col sm:flex-row items-center justify-between mt-2 gap-3 sm:gap-2">
                   <span className="font-bold gradient-text text-xl">€{item.price.toFixed(2)}</span>
                   <button 
                     onClick={() => !isSponsored && onClick(item)}
                     disabled={isSponsored}
-                    className={`text-xs font-bold px-5 py-2.5 rounded-xl transition-all flex items-center gap-2 ${
+                    className={`w-full sm:w-auto text-xs font-bold px-5 py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 ${
                       isSponsored 
                       ? "glass text-slate-400 cursor-not-allowed"
                       : item.category === 'Library Fund' 
@@ -417,9 +417,9 @@
                       </p>
                       <div className="w-32 h-1.5 bg-gradient-to-r from-amber-400 to-yellow-500 mx-auto mb-8 rounded-full"></div>
                       
-                      {/* Description Box: White Background */}
+                      {/* Description Box: White Background, New Text */}
                       <p className="text-blue-900 font-medium text-lg max-w-2xl mx-auto leading-relaxed bg-white/95 backdrop-blur-md px-8 py-4 rounded-2xl shadow-xl">
-                        Select books to sponsor our library. 
+                        Select books to sponsor our library. <br className="hidden sm:block"/>
                         Once a book is sponsored, it is removed from the registry list.
                       </p>
                     </div>
@@ -445,7 +445,7 @@
                   </div>
 
                   {/* Filter Checkbox */}
-                  <label className="flex items-center gap-2 cursor-pointer glass-card px-4 py-2 rounded-full text-sm font-bold text-slate-700 hover:text-blue-700 transition-colors bg-white shadow-sm border border-slate-200">
+                  <label className="flex items-center gap-2 cursor-pointer glass-card px-4 py-2 rounded-full text-sm font-bold text-slate-700 hover:text-blue-700 transition-colors bg-white shadow-sm border border-slate-200 select-none">
                       <input 
                           type="checkbox" 
                           checked={showAvailableOnly} 
