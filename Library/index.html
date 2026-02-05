@@ -12,7 +12,7 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
-    <!-- Babel (to understand JSX) -->
+    <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <!-- Tailwind CSS -->
@@ -25,7 +25,7 @@
         /* Custom Styles */
         body { 
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; /* Slate-50 (White/Light Grey) */
+            background-color: #f8fafc;
         }
         
         .bg-brand-gradient {
@@ -49,17 +49,16 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
-        /* Updated Glass Card for White Background visibility */
         .glass-card {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(226, 232, 240, 0.8); /* Slate-200 border */
+            border: 1px solid rgba(226, 232, 240, 0.8);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
 
         .glass-dark {
-            background: rgba(30, 58, 138, 0.7); /* Blue-900 with opacity */
+            background: rgba(30, 58, 138, 0.7);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -90,6 +89,12 @@
         }
         .animate-float { animation: float 3s ease-in-out infinite; }
 
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow { animation: spin-slow 3s linear infinite; }
+
         /* Scrollbar */
         ::-webkit-scrollbar { width: 10px; }
         ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
@@ -99,7 +104,7 @@
         }
         ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #3b82f6 0%, #1e3a8a 100%); }
 
-        /* Gradient text (Royal Blue) */
+        /* Gradient text */
         .gradient-text {
             background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
             -webkit-background-clip: text;
@@ -107,12 +112,10 @@
             background-clip: text;
         }
 
-        /* Premium shadows (Blue tinted) */
         .shadow-premium {
-            box-shadow: 0 20px 60px rgba(37, 99, 235, 0.15); /* Lighter shadow for white bg */
+            box-shadow: 0 20px 60px rgba(37, 99, 235, 0.15);
         }
 
-        /* Floating orbs background */
         .orb {
             position: absolute;
             border-radius: 50%;
@@ -129,12 +132,12 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // --- Icons (SVG Components) ---
+        // --- Configuration ---
+        const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTT-MjmMx_OmNu0bL-MnyUFflYcxHHDLuELn8k1Lz3APX6MOtfi5WQJ35t6Zk610A/pub?gid=376704598&single=true&output=csv";
+
+        // --- Icons ---
         const IconBook = ({ size = 24, className = "" }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-        );
-        const IconHeart = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
         );
         const IconShoppingBag = ({ size = 24, className = "" }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
@@ -154,50 +157,84 @@
         const IconLock = ({ size = 24, className = "" }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         );
-        const IconUser = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        );
-        const IconSparkles = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
-        );
         const IconArrowRight = ({ size = 24, className = "" }) => (
-             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
         );
-        const IconPlus = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        const IconLoader = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
         );
 
-        // --- Data ---
-        const INVENTORY = [
-          { id: 1001, title: "Bua na Cainte 1", author: "Edco", price: 19.50, category: "1st Class", type: "book", color: "bg-emerald-700", sponsored: false },
-          { id: 1002, title: "Grow in Love 2", author: "Veritas", price: 16.99, category: "Senior Infants", type: "book", color: "bg-pink-600", sponsored: false },
-          { id: 1003, title: "Ready Steady Go Maths", author: "CJ Fallon", price: 12.50, category: "3rd Class", type: "book", color: "bg-blue-600", sponsored: false },
-          { id: 1004, title: "Starlight Skills Book", author: "Folens", price: 14.25, category: "1st Class", type: "book", color: "bg-orange-600", sponsored: false },
-          { id: 1005, title: "A Way with Words 6", author: "CJ Fallon", price: 21.00, category: "6th Class", type: "book", color: "bg-teal-600", sponsored: false },
-          { id: 1006, title: "The Gruffalo (Library Copy)", author: "Julia Donaldson", price: 9.00, category: "Junior Infants", type: "book", color: "bg-amber-700", sponsored: true },
-          { id: 1007, title: "Over the Moon", author: "Gill Education", price: 13.50, category: "Junior Infants", type: "book", color: "bg-indigo-600", sponsored: false },
-          { id: 2001, title: "Library Decoration Fund", author: "General Donation", price: 10.00, category: "Library Fund", type: "donation", color: "bg-blue-900", sponsored: false },
-          { id: 2002, title: "Sponsor a Classic Novel", author: "Library Gift", price: 12.00, category: "Library Fund", type: "donation", color: "bg-amber-700", sponsored: false },
-        ];
+        // --- Utilities ---
+        
+        // Robust CSV Parser
+        const parseCSV = (text) => {
+            const rows = [];
+            let currentRow = [];
+            let currentCell = '';
+            let insideQuotes = false;
+
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                const nextChar = text[i + 1];
+
+                if (char === '"') {
+                    if (insideQuotes && nextChar === '"') {
+                        currentCell += '"'; // Escaped quote
+                        i++;
+                    } else {
+                        insideQuotes = !insideQuotes;
+                    }
+                } else if (char === ',' && !insideQuotes) {
+                    currentRow.push(currentCell.trim());
+                    currentCell = '';
+                } else if ((char === '\r' || char === '\n') && !insideQuotes) {
+                    if (currentCell || currentRow.length > 0) {
+                        currentRow.push(currentCell.trim());
+                        rows.push(currentRow);
+                        currentRow = [];
+                        currentCell = '';
+                    }
+                    if (char === '\r' && nextChar === '\n') i++;
+                } else {
+                    currentCell += char;
+                }
+            }
+            if (currentCell || currentRow.length > 0) {
+                currentRow.push(currentCell.trim());
+                rows.push(currentRow);
+            }
+            return rows;
+        };
+
+        const getRandomColor = (id) => {
+            const colors = ["bg-emerald-700", "bg-pink-600", "bg-blue-600", "bg-orange-600", "bg-teal-600", "bg-indigo-600", "bg-amber-700", "bg-rose-600"];
+            return colors[id % colors.length];
+        };
 
         // --- Components ---
 
         const ProductCard = ({ item, onQuickAdd }) => {
           const isSponsored = item.sponsored;
+          const hasImage = item.image && item.image.length > 5;
+          const fallbackColor = getRandomColor(item.id);
 
           return (
-            // Reverted to glass-card but ensured it has border/shadow for visibility on white
             <div className={`group relative glass-card p-5 rounded-2xl transition-all duration-300 hover:shadow-premium ${!isSponsored && 'hover:scale-105'} flex flex-col h-full`}>
               
               {/* Image Area */}
               <div className="mb-4 relative w-full aspect-[3/4] flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl overflow-hidden">
-                  <div className={`w-3/4 h-5/6 ${isSponsored ? 'bg-slate-400 grayscale' : item.color} rounded-r-md rounded-l-sm shadow-xl relative flex flex-col p-3 transition-transform duration-500 ${!isSponsored && 'group-hover:scale-110 group-hover:rotate-2'}`}>
-                    <div className="absolute left-0 top-0 bottom-0 w-2 bg-black/20 z-10"></div>
-                    <div className="border-2 border-white/30 h-full flex flex-col justify-between text-center p-2">
-                       <div className="text-white font-serif text-sm leading-tight font-bold drop-shadow-lg">{item.title}</div>
-                       {/* CLEAN SPINE: No text here except title (already above) and decorative heart if donation */}
-                       {item.type === 'donation' && <IconHeart className="text-white/50 w-6 h-6 mx-auto" />}
-                    </div>
+                  <div className={`w-3/4 h-5/6 ${hasImage ? 'bg-white' : fallbackColor} rounded-r-md rounded-l-sm shadow-xl relative flex flex-col transition-transform duration-500 ${!isSponsored && 'group-hover:scale-110 group-hover:rotate-2'}`}>
+                    
+                    {/* Spine Effect */}
+                    <div className="absolute left-0 top-0 bottom-0 w-2 bg-black/10 z-10 pointer-events-none"></div>
+                    
+                    {hasImage ? (
+                         <img src={item.image} alt={item.title} className="w-full h-full object-cover rounded-r-md" />
+                    ) : (
+                        <div className="border-2 border-white/30 h-full flex flex-col justify-between text-center p-2">
+                            <div className="text-white font-serif text-sm leading-tight font-bold drop-shadow-lg break-words">{item.title}</div>
+                        </div>
+                    )}
                   </div>
                   
                   {isSponsored && (
@@ -211,36 +248,32 @@
 
               {/* Details */}
               <div className="text-center space-y-2 mt-auto">
-                
-                {/* 1. Author inside the Gold Bar/Pill UNDER the book */}
-                <div className="inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900">
+                <div className="inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 truncate max-w-full">
                   {item.author}
                 </div>
-
-                {/* 2. No Category/Class text displayed below */}
 
                 <h3 className="font-serif font-bold text-slate-900 leading-tight line-clamp-2 min-h-[2.5em] text-sm sm:text-base pt-1">
                   {item.title}
                 </h3>
                 
-                {/* Updated: Flex-col on mobile to prevent button overflow, row on sm screens. Added gap-4 */}
+                {item.synopsis && (
+                    <p className="text-xs text-slate-500 line-clamp-2 h-8">{item.synopsis}</p>
+                )}
+                
                 <div className="pt-3 flex flex-col sm:flex-row items-center justify-between mt-2 gap-4">
                   <span className="font-bold gradient-text text-xl">€{item.price.toFixed(2)}</span>
                   <button 
                     onClick={(e) => {
-                        e.stopPropagation(); // Prevent opening modal
+                        e.stopPropagation();
                         !isSponsored && onQuickAdd(item);
                     }}
                     disabled={isSponsored}
                     className={`w-full sm:w-auto text-xs font-bold px-5 py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 ${
                       isSponsored 
                       ? "glass text-slate-400 cursor-not-allowed"
-                      : item.category === 'Library Fund' 
-                        ? "bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 hover:shadow-lg hover:scale-105"
-                        : "bg-gradient-to-r from-blue-800 to-blue-600 text-white hover:shadow-lg hover:scale-105 shadow-premium"
+                      : "bg-gradient-to-r from-blue-800 to-blue-600 text-white hover:shadow-lg hover:scale-105 shadow-premium"
                     }`}
                   >
-                    {/* Updated: Only "Taken" or "Select" */}
                     {isSponsored ? 'Taken' : 'Select'}
                   </button>
                 </div>
@@ -283,12 +316,6 @@
         const CheckoutModal = ({ isOpen, onClose, cartTotal, bookString, donorName }) => {
             if (!isOpen) return null;
             
-            // Construct JotForm URL with prefilled parameters
-            // Field mapping:
-            // total -> totalPrice
-            // books -> book names (pipe separated)
-            // q2_fullname0 -> donorName
-            // NOTE: Using parameters provided: name is q2_fullname0, Book(s) is books, Total is total
             const formUrl = `https://form.jotform.com/260355679497070?total=${cartTotal}&books=${encodeURIComponent(bookString)}&q2_fullname0=${encodeURIComponent(donorName)}`;
 
             return (
@@ -319,30 +346,81 @@
         // --- Main App ---
 
         function App() {
+          const [inventory, setInventory] = useState([]);
+          const [loading, setLoading] = useState(true);
+          const [error, setError] = useState(null);
+
           const [cart, setCart] = useState([]);
           const [isCartOpen, setIsCartOpen] = useState(false);
           const [searchQuery, setSearchQuery] = useState("");
           const [selectedItem, setSelectedItem] = useState(null); 
           const [showAvailableOnly, setShowAvailableOnly] = useState(false); 
-          const [showSuccessModal, setShowSuccessModal] = useState(false); // Restore Success Popup State
+          const [showSuccessModal, setShowSuccessModal] = useState(false);
           const [lastAddedItem, setLastAddedItem] = useState(null);
-          const [isCheckoutOpen, setIsCheckoutOpen] = useState(false); // Checkout Iframe State
+          const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
           
           const [donorName, setDonorName] = useState("");
           const [notification, setNotification] = useState(null);
 
-          const filteredItems = INVENTORY.filter(item => {
-            const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase());
+          // Fetch Data from Google Sheet
+          useEffect(() => {
+            fetch(SHEET_CSV_URL)
+                .then(response => {
+                    if (!response.ok) throw new Error("Network response was not ok");
+                    return response.text();
+                })
+                .then(text => {
+                    const rows = parseCSV(text);
+                    // Assuming row 0 is header: Title, Author, Price, Synopsis, Image Link
+                    // Map starting from index 1
+                    const headers = rows[0].map(h => h.toLowerCase().trim());
+                    
+                    const mappedData = rows.slice(1).map((row, index) => {
+                        // Safe index access
+                        const getCol = (name) => {
+                            const idx = headers.findIndex(h => h.includes(name));
+                            return idx !== -1 ? row[idx] : "";
+                        };
+
+                        const title = getCol("title") || "Untitled";
+                        const author = getCol("author") || "Unknown";
+                        const priceStr = getCol("price") || "0";
+                        const price = parseFloat(priceStr.replace(/[^0-9.]/g, '')) || 0;
+                        const synopsis = getCol("synopsis") || "";
+                        const image = getCol("image") || "";
+
+                        // Skip empty rows
+                        if (!title || title === "Untitled") return null;
+
+                        return {
+                            id: index + 1000,
+                            title,
+                            author,
+                            price,
+                            synopsis,
+                            image,
+                            sponsored: false // Default to available
+                        };
+                    }).filter(item => item !== null);
+
+                    setInventory(mappedData);
+                    setLoading(false);
+                })
+                .catch(err => {
+                    console.error("Error fetching sheet:", err);
+                    setError("Unable to load book list. Please try again later.");
+                    setLoading(false);
+                });
+          }, []);
+
+          const filteredItems = inventory.filter(item => {
+            const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                  item.author.toLowerCase().includes(searchQuery.toLowerCase());
             const matchesFilter = showAvailableOnly ? !item.sponsored : true; 
             return matchesSearch && matchesFilter;
           });
 
           const cartTotal = cart.reduce((sum, item) => sum + item.price, 0);
-
-          const handleItemClick = (item) => {
-            setSelectedItem(item);
-            setDonorName("");
-          };
 
           const addToCart = (item) => {
             if (!item) return;
@@ -356,13 +434,11 @@
             const newItem = {
               ...item,
               cartId: Date.now(),
-              details: item.type === 'donation' ? `Sponsor: ${'Anonymous'}` : 'Registry Item'
+              details: 'Registry Item'
             };
             
             setCart([...cart, newItem]);
             setLastAddedItem(newItem);
-            
-            // Logic Change: Open Success Modal asking to checkout
             setShowSuccessModal(true);
           };
 
@@ -374,8 +450,8 @@
           const handleCheckoutNow = () => {
              setShowSuccessModal(false);
              setLastAddedItem(null);
-             setIsCartOpen(false); // Close cart sidebar if open
-             setIsCheckoutOpen(true); // Open Iframe Modal
+             setIsCartOpen(false); 
+             setIsCheckoutOpen(true); 
           };
 
           const removeFromCart = (cartId) => {
@@ -383,12 +459,10 @@
           };
 
           const handleJotFormCheckout = () => {
-              // This function is called from the Cart Sidebar "Proceed to Payment" button
               setIsCartOpen(false);
               setIsCheckoutOpen(true);
           };
 
-          // Generate pipe separated book string for JotForm
           const bookString = cart.map(item => item.title).join(" | ");
 
           return (
@@ -397,7 +471,7 @@
               {/* --- Header / Hero Section (Blue Background) --- */}
               <div className="bg-brand-gradient relative overflow-hidden pb-16">
                   
-                  {/* Floating orbs background (Blue tones) - Only in top section */}
+                  {/* Floating orbs */}
                   <div className="absolute inset-0 overflow-hidden pointer-events-none">
                     <div className="orb w-96 h-96 bg-blue-700 absolute -top-20 -left-20" style={{animationDelay: '0s'}}></div>
                     <div className="orb w-80 h-80 bg-blue-500 absolute top-1/3 -right-20" style={{animationDelay: '2s'}}></div>
@@ -466,7 +540,6 @@
                       </p>
                       <div className="w-32 h-1.5 bg-gradient-to-r from-amber-400 to-yellow-500 mx-auto mb-8 rounded-full"></div>
                       
-                      {/* Description Box: White Background, New Text */}
                       <p className="text-blue-900 font-medium text-lg max-w-2xl mx-auto leading-relaxed bg-white/95 backdrop-blur-md px-8 py-4 rounded-2xl shadow-xl">
                         Select books to sponsor our library. <br className="hidden sm:block"/>
                         Once a book is sponsored, it is removed from the registry list.
@@ -486,14 +559,13 @@
                     </div>
                     <input 
                       type="text" 
-                      placeholder="Find a specific title..." 
+                      placeholder="Find a specific title or author..." 
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="w-full pl-14 pr-6 py-4 rounded-2xl bg-white border border-slate-200 shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-400/50 transition-all font-serif text-lg"
                     />
                   </div>
 
-                  {/* Filter Checkbox */}
                   <label className="flex items-center gap-2 cursor-pointer glass-card px-4 py-2 rounded-full text-sm font-bold text-slate-700 hover:text-blue-700 transition-colors bg-white shadow-sm border border-slate-200 select-none">
                       <input 
                           type="checkbox" 
@@ -506,7 +578,18 @@
                 </div>
 
                 {/* Grid */}
-                {filteredItems.length > 0 ? (
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center py-24 space-y-4">
+                        <div className="animate-spin-slow text-blue-600">
+                            <IconLoader size={48} />
+                        </div>
+                        <p className="text-xl font-serif text-slate-500">Loading Library...</p>
+                    </div>
+                ) : error ? (
+                    <div className="text-center py-12 bg-red-50 rounded-xl border border-red-200">
+                        <p className="text-red-600 font-bold">{error}</p>
+                    </div>
+                ) : filteredItems.length > 0 ? (
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
                     {filteredItems.map(item => (
                       <ProductCard key={item.id} item={item} onQuickAdd={addToCart} />
@@ -547,8 +630,14 @@
                       ) : (
                         cart.map(item => (
                           <div key={item.cartId} className="flex gap-4 p-5 glass-card rounded-xl shadow-lg border border-white/40">
-                            <div className={`w-14 h-20 shrink-0 ${item.color} rounded flex items-center justify-center text-white shadow-lg`}>
-                               <IconBook size={24} />
+                            <div className="w-14 h-20 shrink-0 bg-slate-100 rounded flex items-center justify-center text-white shadow-lg overflow-hidden">
+                               {item.image ? (
+                                   <img src={item.image} className="w-full h-full object-cover" />
+                               ) : (
+                                   <div className={`w-full h-full ${getRandomColor(item.id)} flex items-center justify-center`}>
+                                       <IconBook size={24} />
+                                   </div>
+                               )}
                             </div>
                             
                             <div className="flex-1 min-w-0">
@@ -558,7 +647,7 @@
                                   <IconX size={16} />
                                 </button>
                               </div>
-                              <p className="text-xs text-slate-500 mb-2">{item.details}</p>
+                              <p className="text-xs text-slate-500 mb-2 truncate">{item.author}</p>
                               <div className="flex justify-between items-center mt-3">
                                  <span className="font-bold gradient-text text-lg">€{item.price.toFixed(2)}</span>
                               </div>
