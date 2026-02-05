@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoil Íosagáin Book Registry</title>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel (to understand JSX) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Custom Styles */
+        body { font-family: 'Lato', sans-serif; }
+        h1, h2, h3, h4 { font-family: 'Cinzel', serif; }
+        
+        /* Animations */
+        @keyframes slide-left {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        .animate-slide-left { animation: slide-left 0.3s ease-out; }
+        
+        @keyframes scale-up {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .animate-scale-up { animation: scale-up 0.2s ease-out; }
+
+        @keyframes slide-up {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-slide-up { animation: slide-up 0.4s ease-out; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- Icons (SVG Components) ---
+        const IconBook = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        );
+        const IconHeart = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+        );
+        const IconShoppingBag = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        );
+        const IconX = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        );
+        const IconSearch = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        );
+        const IconCheck = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 6 9 17l-5-5"/></svg>
+        );
+        const IconExternalLink = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+        );
+        const IconLock = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        );
+
+        // --- Data ---
+        // In a real app, 'sponsored' status would come from your database
+        const INVENTORY = [
+          { id: 1001, title: "Bua na Cainte 1", author: "Edco", price: 19.50, category: "1st Class", type: "book", color: "bg-emerald-700", sponsored: false },
+          { id: 1002, title: "Grow in Love 2", author: "Veritas", price: 16.99, category: "Senior Infants", type: "book", color: "bg-pink-600", sponsored: false },
+          { id: 1003, title: "Ready Steady Go Maths", author: "CJ Fallon", price: 12.50, category: "3rd Class", type: "book", color: "bg-blue-600", sponsored: false },
+          { id: 1004, title: "Starlight Skills Book", author: "Folens", price: 14.25, category: "1st Class", type: "book", color: "bg-orange-600", sponsored: false },
+          { id: 1005, title: "A Way with Words 6", author: "CJ Fallon", price: 21.00, category: "6th Class", type: "book", color: "bg-teal-600", sponsored: false },
+          { id: 1006, title: "The Gruffalo (Library Copy)", author: "Julia Donaldson", price: 9.00, category: "Junior Infants", type: "book", color: "bg-amber-700", sponsored: true }, // EXAMPLE OF A SOLD BOOK
+          { id: 1007, title: "Over the Moon", author: "Gill Education", price: 13.50, category: "Junior Infants", type: "book", color: "bg-indigo-600", sponsored: false },
+          { id: 2001, title: "Library Decoration Fund", author: "General Donation", price: 10.00, category: "Library Fund", type: "donation", color: "bg-purple-900", sponsored: false },
+          { id: 2002, title: "Sponsor a Classic Novel", author: "Library Gift", price: 12.00, category: "Library Fund", type: "donation", color: "bg-amber-700", sponsored: false },
+        ];
+
+        // --- Components ---
+
+        const ProductCard = ({ item, onClick }) => {
+          const isSponsored = item.sponsored;
+
+          return (
+            <div className={`group relative bg-white border ${isSponsored ? 'border-slate-100 opacity-60' : 'border-slate-200'} p-4 rounded-xl transition-all duration-300 hover:shadow-xl flex flex-col h-full`}>
+              
+              {/* Image Area */}
+              <div className="mb-4 relative w-full aspect-[3/4] flex items-center justify-center bg-slate-50 rounded-lg overflow-hidden border border-slate-100">
+                  <div className={`w-3/4 h-5/6 ${isSponsored ? 'bg-slate-400 grayscale' : item.color} rounded-r-md rounded-l-sm shadow-lg relative flex flex-col p-3 transition-transform duration-500 ${!isSponsored && 'group-hover:scale-105'}`}>
+                    <div className="absolute left-0 top-0 bottom-0 w-2 bg-black/20 z-10"></div>
+                    <div className="border border-white/20 h-full flex flex-col justify-between text-center p-2">
+                       <div className="text-white font-serif text-sm leading-tight font-bold drop-shadow-sm">{item.title}</div>
+                       {item.type === 'donation' ? <IconHeart className="text-white/50 w-6 h-6 mx-auto" /> : <div className="text-[10px] text-white/80 uppercase tracking-widest">{item.author}</div>}
+                    </div>
+                  </div>
+                  
+                  {isSponsored && (
+                    <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center">
+                      <div className="bg-slate-800 text-white px-3 py-1 text-xs font-bold uppercase tracking-widest transform -rotate-12 border-2 border-slate-900">
+                        Sponsored
+                      </div>
+                    </div>
+                  )}
+              </div>
+
+              {/* Details */}
+              <div className="text-center space-y-2 mt-auto">
+                <p className="text-[10px] font-bold text-[#c5a028] uppercase tracking-widest">{item.category}</p>
+                <h3 className="font-serif font-bold text-slate-900 leading-tight line-clamp-2 min-h-[2.5em] text-sm sm:text-base">
+                  {item.title}
+                </h3>
+                
+                <div className="pt-3 flex items-center justify-between border-t border-slate-100 mt-2">
+                  <span className="font-bold text-slate-900 text-lg">€{item.price.toFixed(2)}</span>
+                  <button 
+                    onClick={() => !isSponsored && onClick(item)}
+                    disabled={isSponsored}
+                    className={`text-xs font-bold px-4 py-2 rounded-md transition-all flex items-center gap-2 ${
+                      isSponsored 
+                      ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                      : item.category === 'Library Fund' 
+                        ? "bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200"
+                        : "bg-[#0a1128] text-white hover:bg-[#131b36] shadow-md shadow-slate-900/10"
+                    }`}
+                  >
+                    {isSponsored ? 'Taken' : item.category === 'Library Fund' ? 'Donate' : 'Select'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        };
+
+        const Notification = ({ message, show, onClose }) => {
+          if (!show) return null;
+          return (
+            <div className="fixed bottom-6 right-6 bg-[#0a1128] text-white px-6 py-4 rounded-lg shadow-2xl flex items-center gap-3 z-50 animate-slide-up border border-[#c5a028]">
+              <div className="bg-[#c5a028] text-[#0a1128] rounded-full p-1">
+                <IconCheck size={16} />
+              </div>
+              <div>
+                <h4 className="font-serif font-bold text-[#c5a028]">Registry Updated</h4>
+                <p className="text-sm text-slate-300">{message}</p>
+              </div>
+              <button onClick={onClose} className="ml-4 text-slate-400 hover:text-white">
+                <IconX size={16} />
+              </button>
+            </div>
+          );
+        };
+
+        const Modal = ({ isOpen, onClose, children }) => {
+          if (!isOpen) return null;
+          return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <div className="absolute inset-0 bg-[#0a1128]/80 backdrop-blur-sm" onClick={onClose}></div>
+              <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-scale-up border border-[#c5a028]">
+                {children}
+              </div>
+            </div>
+          );
+        };
+
+        // --- Main App ---
+
+        function App() {
+          const [cart, setCart] = useState([]);
+          const [isCartOpen, setIsCartOpen] = useState(false);
+          const [searchQuery, setSearchQuery] = useState("");
+          const [selectedItem, setSelectedItem] = useState(null); 
+          
+          const [donorName, setDonorName] = useState("");
+          const [notification, setNotification] = useState(null);
+
+          // Filter Items based on Search only
+          const filteredItems = INVENTORY.filter(item => {
+            const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase());
+            return matchesSearch;
+          });
+
+          const cartTotal = cart.reduce((sum, item) => sum + item.price, 0);
+
+          const handleItemClick = (item) => {
+            setSelectedItem(item);
+            setDonorName("");
+          };
+
+          const addToCart = () => {
+            if (!selectedItem) return;
+            
+            // Check if already in cart
+            if (cart.find(c => c.id === selectedItem.id)) {
+                setNotification("This item is already in your selection.");
+                setTimeout(() => setNotification(null), 3000);
+                setSelectedItem(null);
+                return;
+            }
+
+            const newItem = {
+              ...selectedItem,
+              cartId: Date.now(),
+              details: selectedItem.type === 'donation' ? `Sponsor: ${donorName || 'Anonymous'}` : 'Registry Item'
+            };
+            
+            setCart([...cart, newItem]);
+            setSelectedItem(null);
+            setNotification(`${selectedItem.title} selected.`);
+            
+            setTimeout(() => {
+              setNotification(null);
+            }, 3000);
+          };
+
+          const removeFromCart = (cartId) => {
+            setCart(cart.filter(item => item.cartId !== cartId));
+          };
+
+          const handleJotFormCheckout = () => {
+              // *** CONFIGURATION ***
+              // Replace with your JotForm ID
+              const jotFormBaseUrl = "https://form.jotform.com/230000000000000";
+              
+              const totalAmount = cartTotal.toFixed(2);
+              
+              const params = new URLSearchParams();
+              
+              params.append("totalPrice", totalAmount);
+              params.append("donorName", donorName);
+              params.append("quantity", cart.length); 
+              
+              // Add individual items for JotForm dropdowns
+              cart.forEach((item, index) => {
+                  params.append(`item_${index + 1}`, item.title);
+              });
+
+              // Order Summary Backup
+              const summary = cart.map(i => `${i.title} (€${i.price})`).join(", ");
+              params.append("orderSummary", summary);
+              
+              // Redirect
+              const checkoutUrl = `${jotFormBaseUrl}?${params.toString()}`;
+              window.open(checkoutUrl, '_blank');
+          };
+
+          return (
+            <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+              
+              {/* --- Top Bar --- */}
+              <div className="bg-[#050914] text-slate-400 text-xs py-2 px-4 border-b border-slate-800">
+                <div className="max-w-7xl mx-auto flex justify-between items-center">
+                  <div className="flex gap-4">
+                     <span><i className="mr-1">📍</i> Farranree, Cork</span>
+                     <span className="hidden sm:inline"><i className="mr-1">📞</i> (021) 123 4567</span>
+                  </div>
+                  <div className="flex gap-4">
+                    <span className="text-[#c5a028] font-bold">Registry 2026/2027</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* --- Header --- */}
+              <header className="bg-[#0a1128] text-white shadow-lg sticky top-0 z-40 border-b border-[#1e293b]">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div className="flex justify-between items-center h-24">
+                    
+                    {/* Logo & Title */}
+                    <div className="flex items-center gap-4 group cursor-pointer" onClick={() => window.scrollTo(0,0)}>
+                      <div className="w-16 h-16 rounded-full bg-white border-[3px] border-[#c5a028] overflow-hidden flex items-center justify-center shadow-lg shadow-black/30 transition-transform group-hover:scale-105">
+                        <img 
+                          src="https://storage.googleapis.com/siteassetsswd/839/default/20250728102007_24_default.jpg" 
+                          alt="Scoil Íosagáin Logo" 
+                          className="w-12 h-12 object-contain"
+                        />
+                      </div>
+                      <div>
+                        <h1 className="text-2xl font-bold tracking-wide">Scoil Íosagáin</h1>
+                        <p className="text-[#c5a028] text-xs font-bold uppercase tracking-[0.2em]">Book Registry</p>
+                      </div>
+                    </div>
+                    
+                    {/* Basket Trigger */}
+                    <button 
+                      onClick={() => setIsCartOpen(true)}
+                      className="relative p-3 rounded-full hover:bg-white/5 transition-colors group"
+                    >
+                      <IconShoppingBag className="w-6 h-6 text-slate-300 group-hover:text-[#c5a028] transition-colors" />
+                      {cart.length > 0 && (
+                        <span className="absolute top-1 right-1 bg-[#c5a028] text-[#0a1128] text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-md animate-bounce">
+                          {cart.length}
+                        </span>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </header>
+
+              {/* --- Hero Banner --- */}
+              <div className="bg-[#131b36] border-b border-[#1e293b] py-12 px-4 text-center relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10 pointer-events-none">
+                   <div className="absolute -top-10 -left-10 w-64 h-64 bg-[#c5a028] rounded-full blur-3xl"></div>
+                   <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#9f1239] rounded-full blur-3xl"></div>
+                </div>
+
+                <div className="relative z-10 max-w-2xl mx-auto">
+                  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                    School Book <span className="text-[#c5a028]">Registry</span>
+                  </h2>
+                  <div className="w-24 h-1 bg-[#c5a028] mx-auto mb-6"></div>
+                  <p className="text-slate-300 mb-8 font-light text-lg">
+                    Select books to sponsor for the upcoming academic year. 
+                    Once a book is sponsored, it is removed from the registry list.
+                  </p>
+                </div>
+              </div>
+
+              {/* --- Main Content --- */}
+              <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                
+                {/* Search Only */}
+                <div className="flex justify-center mb-12">
+                  <div className="relative w-full max-w-lg">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                        <IconSearch size={20} />
+                    </div>
+                    <input 
+                      type="text" 
+                      placeholder="Find a specific title..." 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 rounded-full border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#c5a028] focus:border-[#c5a028] transition-all bg-white font-serif shadow-sm text-lg"
+                    />
+                  </div>
+                </div>
+
+                {/* Grid */}
+                {filteredItems.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+                    {filteredItems.map(item => (
+                      <ProductCard key={item.id} item={item} onClick={handleItemClick} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-20 bg-white rounded-xl border border-dashed border-slate-300">
+                    <div className="inline-block p-4 rounded-full bg-slate-50 mb-4">
+                      <IconBook size={32} className="text-slate-300" />
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-900">No items found</h3>
+                    <p className="text-slate-500">Try adjusting your search.</p>
+                  </div>
+                )}
+              </main>
+
+              {/* --- Footer --- */}
+              <footer className="bg-[#0a1128] border-t border-[#c5a028] pt-12 pb-8 text-slate-400 text-sm">
+                <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+                  
+                  <div>
+                    <h4 className="text-[#c5a028] font-bold uppercase tracking-widest mb-4">Scoil Íosagáin</h4>
+                    <p className="leading-relaxed">
+                      Farranree, Cork<br/>
+                      County Cork, Ireland
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <h4 className="text-[#c5a028] font-bold uppercase tracking-widest mb-4">Registry Info</h4>
+                    <p className="leading-relaxed">
+                      Books are removed from the list<br/>
+                      automatically once sponsored.<br/>
+                      <span className="text-xs text-slate-500 mt-2 block">Questions? Contact the office.</span>
+                    </p>
+                  </div>
+                  
+                  <div>
+                     <h4 className="text-[#c5a028] font-bold uppercase tracking-widest mb-4">Secure Payment</h4>
+                     <p className="mb-4">Transactions processed via JotForm & Stripe.</p>
+                     <div className="flex gap-2 justify-center md:justify-start opacity-50">
+                       <IconLock size={20} />
+                       <span>256-bit SSL Encrypted</span>
+                     </div>
+                  </div>
+
+                </div>
+                <div className="mt-12 pt-8 border-t border-slate-800 text-center text-xs text-slate-600">
+                  &copy; 2026 Scoil Íosagáin. All rights reserved.
+                </div>
+              </footer>
+
+              {/* --- Modal: Product Options --- */}
+              <Modal isOpen={!!selectedItem} onClose={() => setSelectedItem(null)}>
+                {selectedItem && (
+                  <div className="flex flex-col h-full">
+                    <div className="bg-[#0a1128] p-6 text-white flex justify-between items-start border-b border-[#c5a028]">
+                      <div>
+                        <p className="text-[#c5a028] text-xs font-bold uppercase tracking-widest mb-1">{selectedItem.category}</p>
+                        <h3 className="text-xl font-bold">{selectedItem.title}</h3>
+                        <p className="text-slate-400 text-sm mt-1">{selectedItem.author}</p>
+                      </div>
+                      <button onClick={() => setSelectedItem(null)} className="text-slate-400 hover:text-white transition-colors">
+                        <IconX size={20} />
+                      </button>
+                    </div>
+                    
+                    <div className="p-6 space-y-6">
+                      
+                      {selectedItem.type === 'donation' ? (
+                        <div>
+                          <label className="block text-sm font-bold text-slate-900 mb-2">Sponsor Name (Optional)</label>
+                          <input 
+                            type="text" 
+                            placeholder="e.g. The Murphy Family"
+                            className="w-full p-3 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#c5a028] focus:border-[#c5a028] outline-none transition-all"
+                            value={donorName}
+                            onChange={(e) => setDonorName(e.target.value)}
+                          />
+                          <p className="text-xs text-slate-500 mt-2">This name will be passed to the registry.</p>
+                        </div>
+                      ) : (
+                        <div className="flex items-start gap-3 bg-slate-50 p-4 rounded-lg border border-slate-100">
+                           <div className="bg-emerald-100 text-emerald-700 p-2 rounded-full">
+                             <IconCheck size={16} />
+                           </div>
+                           <div>
+                             <p className="font-bold text-sm text-slate-900">Available to Sponsor</p>
+                             <p className="text-xs text-slate-500">This book is currently needed on the registry list.</p>
+                           </div>
+                        </div>
+                      )}
+
+                      <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <div className="text-2xl font-bold text-slate-900">€{selectedItem.price.toFixed(2)}</div>
+                        <button 
+                          onClick={addToCart}
+                          className="px-8 py-3 bg-[#0a1128] text-white rounded-lg font-bold hover:bg-[#131b36] transition-colors flex items-center gap-2 shadow-lg hover:shadow-xl hover:shadow-[#c5a028]/20 border border-transparent hover:border-[#c5a028]"
+                        >
+                          <span>Select Item</span>
+                          <IconCheck size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </Modal>
+
+              {/* --- Cart Sidebar --- */}
+              {isCartOpen && (
+                <>
+                  <div className="fixed inset-0 bg-[#0a1128]/60 backdrop-blur-sm z-50 transition-opacity" onClick={() => setIsCartOpen(false)} />
+                  <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-50 transform transition-transform animate-slide-left flex flex-col border-l border-[#c5a028]">
+                    <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-[#0a1128] text-white">
+                      <h2 className="text-xl font-bold">Your Selection</h2>
+                      <button onClick={() => setIsCartOpen(false)} className="text-slate-400 hover:text-[#c5a028]">
+                        <IconX size={24} />
+                      </button>
+                    </div>
+                    
+                    <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                      {cart.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full text-slate-400 space-y-4">
+                          <IconShoppingBag size={48} className="opacity-20" />
+                          <p>No items selected.</p>
+                          <button onClick={() => setIsCartOpen(false)} className="text-[#0a1128] font-bold underline underline-offset-4 decoration-[#c5a028]">
+                            View Registry
+                          </button>
+                        </div>
+                      ) : (
+                        cart.map(item => (
+                          <div key={item.cartId} className="flex gap-4 p-4 bg-slate-50 border border-slate-200 rounded-lg shadow-sm">
+                            {/* Thumbnail */}
+                            <div className={`w-12 h-16 shrink-0 ${item.color} rounded flex items-center justify-center text-white text-[10px] font-bold shadow-sm`}>
+                               <IconBook size={20} />
+                            </div>
+                            
+                            <div className="flex-1 min-w-0">
+                              <div className="flex justify-between items-start mb-1">
+                                <h4 className="font-bold text-slate-900 truncate pr-2 text-sm">{item.title}</h4>
+                                <button onClick={() => removeFromCart(item.cartId)} className="text-slate-400 hover:text-red-500 transition-colors">
+                                  <IconX size={14} />
+                                </button>
+                              </div>
+                              <p className="text-xs text-slate-500 mb-1">{item.details}</p>
+                              <div className="flex justify-between items-center mt-2">
+                                 <span className="font-bold text-slate-900">€{item.price.toFixed(2)}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    {cart.length > 0 && (
+                      <div className="p-6 bg-slate-50 border-t border-slate-200 space-y-4">
+                        <div className="flex justify-between items-center text-lg font-bold text-[#0a1128]">
+                          <span>Total</span>
+                          <span>€{cartTotal.toFixed(2)}</span>
+                        </div>
+                        <p className="text-xs text-slate-500 text-center">
+                          You will be redirected to JotForm to complete payment via Stripe.
+                        </p>
+                        <button 
+                          onClick={handleJotFormCheckout}
+                          className="w-full py-4 bg-[#0a1128] text-white rounded-lg font-bold text-lg hover:bg-[#131b36] transition-all shadow-lg shadow-[#0a1128]/20 flex items-center justify-center gap-2 border border-[#c5a028]"
+                        >
+                          Proceed to Payment
+                          <IconExternalLink size={20} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {/* --- Notification Toast --- */}
+              <Notification 
+                show={!!notification} 
+                message={notification} 
+                onClose={() => setNotification(null)} 
+              />
+              
+            </div>
+          );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
+
