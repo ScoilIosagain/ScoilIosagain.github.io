@@ -95,6 +95,12 @@
         }
         .animate-spin-slow { animation: spin-slow 3s linear infinite; }
 
+        @keyframes pulse-soft {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
+
         /* Scrollbar */
         ::-webkit-scrollbar { width: 10px; }
         ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
@@ -142,7 +148,7 @@
         const { useState, useEffect } = React;
 
         // --- Configuration ---
-        const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTT-MjmMx_OmNu0bL-MnyUFflYcxHHDLuELn8k1Lz3APX6MOtfi5WQJ35t6Zk610A/pub?gid=376704598&single=true&output=csv";
+        const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSicCH85wQoRDXgLEha8ElEDEU2t61wxa9il-FX-A6FlJ2sQqmvfrs9uiwbUHu2pzcfB90ZpajtjGUE/pub?gid=1945670888&single=true&output=csv";
 
         // --- Icons ---
         const IconBook = ({ size = 24, className = "" }) => (
@@ -174,6 +180,12 @@
         );
         const IconPlus = ({ size = 24, className = "" }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        );
+        const IconHeart = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+        );
+        const IconGift = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 12 20 22 4 22 4 12"/><rect width="20" height="5" x="2" y="7"/><line x1="12" x2="12" y1="22" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
         );
 
         // --- Utilities ---
@@ -220,7 +232,9 @@
 
         const getRandomColor = (id) => {
             const colors = ["bg-emerald-700", "bg-pink-600", "bg-blue-600", "bg-orange-600", "bg-teal-600", "bg-indigo-600", "bg-amber-700", "bg-rose-600"];
-            return colors[id % colors.length];
+            // Simple string hash fallback if ID isn't numeric
+            const val = typeof id === 'number' ? id : 12;
+            return colors[val % colors.length];
         };
 
         // --- Components ---
@@ -432,11 +446,53 @@
           );
         };
 
-        // --- Checkout Modal with Iframe ---
-        const CheckoutModal = ({ isOpen, onClose, cartTotal, bookString, donorName }) => {
+        // --- New Donation Modal ---
+        const DonationModal = ({ isOpen, onClose, onAddDonation }) => {
             if (!isOpen) return null;
             
-            const formUrl = `https://form.jotform.com/260355679497070?total=${cartTotal}&books=${encodeURIComponent(bookString)}&q2_fullname0=${encodeURIComponent(donorName)}`;
+            const options = [2, 5, 10, 15, 20];
+
+            return (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                     <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-md" onClick={onClose}></div>
+                     <div className="relative glass-strong rounded-3xl shadow-2xl w-full max-w-md p-6 animate-scale-up border border-white/50 text-center">
+                        <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors">
+                            <IconX size={24} />
+                        </button>
+
+                        <div className="inline-block p-4 rounded-full bg-amber-100 mb-4 border border-amber-200">
+                            <IconGift size={32} className="text-amber-600" />
+                        </div>
+
+                        <h3 className="text-2xl font-bold font-serif mb-2 text-slate-900">Support Our Library</h3>
+                        <p className="text-slate-600 mb-6">Choose a donation amount to add to your cart.</p>
+
+                        <div className="grid grid-cols-3 gap-3 mb-8">
+                            {options.map((amount) => (
+                                <button
+                                    key={amount}
+                                    onClick={() => onAddDonation(amount)}
+                                    className="group relative overflow-hidden py-3 px-4 rounded-xl border-2 border-slate-200 hover:border-amber-400 hover:bg-amber-50 transition-all"
+                                >
+                                    <span className="font-bold text-xl text-slate-700 group-hover:text-amber-700">€{amount}</span>
+                                </button>
+                            ))}
+                        </div>
+                     </div>
+                </div>
+            );
+        };
+
+        // --- Checkout Modal with Iframe ---
+        const CheckoutModal = ({ isOpen, onClose, cartTotal, bookString, donorName, donationAmount }) => {
+            if (!isOpen) return null;
+            
+            // Construct URL: include addDonation param if a donation exists
+            let formUrl = `https://form.jotform.com/260355679497070?total=${cartTotal}&books=${encodeURIComponent(bookString)}&q2_fullname0=${encodeURIComponent(donorName)}`;
+            
+            if (donationAmount > 0) {
+                formUrl += `&addDonation=${donationAmount}`;
+            }
 
             return (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-0 sm:p-4">
@@ -473,12 +529,12 @@
           const [cart, setCart] = useState([]);
           const [isCartOpen, setIsCartOpen] = useState(false);
           const [searchQuery, setSearchQuery] = useState("");
-          const [selectedItem, setSelectedItem] = useState(null); 
+          
+          // Modals
           const [showSuccessModal, setShowSuccessModal] = useState(false);
           const [lastAddedItem, setLastAddedItem] = useState(null);
           const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-          
-          // New state for viewing book details
+          const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
           const [viewingBook, setViewingBook] = useState(null);
           
           const [donorName, setDonorName] = useState("");
@@ -493,12 +549,9 @@
                 })
                 .then(text => {
                     const rows = parseCSV(text);
-                    // Assuming row 0 is header: Title, Author, Price, Synopsis, Image Link
-                    // Map starting from index 1
                     const headers = rows[0].map(h => h.toLowerCase().trim());
                     
                     const mappedData = rows.slice(1).map((row, index) => {
-                        // Safe index access
                         const getCol = (name) => {
                             const idx = headers.findIndex(h => h.includes(name));
                             return idx !== -1 ? row[idx] : "";
@@ -511,7 +564,6 @@
                         const synopsis = getCol("synopsis") || "";
                         const image = getCol("image") || "";
 
-                        // Skip empty rows
                         if (!title || title === "Untitled") return null;
 
                         return {
@@ -521,7 +573,7 @@
                             price,
                             synopsis,
                             image,
-                            sponsored: false // Default to available
+                            sponsored: false 
                         };
                     }).filter(item => item !== null);
 
@@ -542,25 +594,50 @@
           });
 
           const cartTotal = cart.reduce((sum, item) => sum + item.price, 0);
+          
+          // Identify if there is a donation in the cart for passing to JotForm
+          const donationItem = cart.find(item => item.id === 'donation');
+          const donationAmount = donationItem ? donationItem.price : 0;
 
           const addToCart = (item) => {
             if (!item) return;
             
-            if (cart.find(c => c.id === item.id)) {
+            // Check duplicates (unless it's a donation, which we might just update)
+            const existingItem = cart.find(c => c.id === item.id);
+            if (existingItem && item.id !== 'donation') {
                 setNotification("This item is already in your selection.");
                 setTimeout(() => setNotification(null), 3000);
                 return;
             }
 
+            // If it's a donation, remove old donation first (swap it out)
+            let newCart = [...cart];
+            if (item.id === 'donation') {
+                newCart = newCart.filter(c => c.id !== 'donation');
+            }
+
             const newItem = {
               ...item,
-              cartId: Date.now(),
+              cartId: item.id === 'donation' ? 'donation-cart-id' : Date.now(),
               details: 'Registry Item'
             };
             
-            setCart([...cart, newItem]);
+            setCart([...newCart, newItem]);
             setLastAddedItem(newItem);
             setShowSuccessModal(true);
+            setIsDonationModalOpen(false); // Close donation modal if open
+          };
+
+          const handleAddDonation = (amount) => {
+              const donationItem = {
+                  id: 'donation',
+                  title: 'General Donation',
+                  author: 'Scoil Íosagáin Library',
+                  price: amount,
+                  image: '', // Could add a placeholder icon URL
+                  sponsored: false
+              };
+              addToCart(donationItem);
           };
 
           const handleContinueBrowsing = () => {
@@ -665,6 +742,21 @@
                         Select books to sponsor our library. <br className="hidden sm:block"/>
                         Once a book is sponsored, it is removed from the registry list.
                       </p>
+
+                      {/* General Donation Button */}
+                      <div className="mt-8 flex flex-col items-center animate-slide-up" style={{animationDelay: '0.2s'}}>
+                        <button
+                            onClick={() => setIsDonationModalOpen(true)}
+                            className="group relative px-8 py-4 bg-gradient-to-r from-amber-400 to-yellow-500 text-blue-950 font-black text-lg rounded-full shadow-[0_0_30px_rgba(251,191,36,0.3)] hover:shadow-[0_0_40px_rgba(251,191,36,0.5)] hover:scale-105 transition-all duration-300 flex items-center gap-3 border-2 border-white/30"
+                        >
+                            <span className="uppercase tracking-widest text-sm sm:text-base">Make a General Donation</span>
+                            <IconHeart className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 fill-red-600/20 group-hover:scale-110 transition-transform duration-300 animate-pulse-soft" />
+                        </button>
+                        <p className="mt-3 text-blue-200 text-xs sm:text-sm font-medium opacity-80">
+                            Support the library directly
+                        </p>
+                      </div>
+
                     </div>
                   </div>
               </div>
@@ -810,7 +902,11 @@
                         cart.map(item => (
                           <div key={item.cartId} className="flex gap-4 p-5 glass-card rounded-xl shadow-lg border border-white/40">
                             <div className="w-14 h-20 shrink-0 bg-slate-100 rounded flex items-center justify-center text-white shadow-lg overflow-hidden">
-                               {item.image ? (
+                               {item.id === 'donation' ? (
+                                   <div className="w-full h-full bg-amber-100 flex items-center justify-center">
+                                       <IconGift size={24} className="text-amber-600" />
+                                   </div>
+                               ) : item.image ? (
                                    <img src={item.image} className="w-full h-full object-cover" />
                                ) : (
                                    <div className={`w-full h-full ${getRandomColor(item.id)} flex items-center justify-center`}>
@@ -865,6 +961,13 @@
                 onClose={() => setViewingBook(null)}
                 onAddToRegistry={addToCart}
               />
+              
+              {/* --- Donation Modal (New!) --- */}
+              <DonationModal
+                isOpen={isDonationModalOpen}
+                onClose={() => setIsDonationModalOpen(false)}
+                onAddDonation={handleAddDonation}
+              />
 
               {/* --- Modal: Success / Checkout Trigger --- */}
               <Modal isOpen={showSuccessModal} onClose={handleContinueBrowsing}>
@@ -872,9 +975,11 @@
                     <div className="inline-block p-4 rounded-full bg-green-100 mb-4">
                         <IconCheck size={48} className="text-green-600" />
                     </div>
-                    <h3 className="text-2xl font-bold font-serif mb-2 text-slate-900">Book Selected</h3>
+                    <h3 className="text-2xl font-bold font-serif mb-2 text-slate-900">
+                        {lastAddedItem?.id === 'donation' ? 'Donation Added' : 'Book Selected'}
+                    </h3>
                     <p className="text-slate-600 mb-8">
-                        {lastAddedItem && <span className="font-semibold text-slate-800 block mb-2">"{lastAddedItem.title}"</span>}
+                        {lastAddedItem && <span className="font-semibold text-slate-800 block mb-2">"{lastAddedItem.title} - €{lastAddedItem.price}"</span>}
                         Would you like to checkout now?
                     </p>
                     
@@ -903,6 +1008,7 @@
                 cartTotal={cartTotal.toFixed(2)}
                 bookString={bookString}
                 donorName={donorName}
+                donationAmount={donationAmount}
               />
 
               {/* --- Notification Toast --- */}
