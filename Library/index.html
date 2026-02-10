@@ -138,6 +138,16 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+        
+        /* Shelf 3D perspective */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        
+        /* Smooth bounce for books growing */
+        .transition-bouncy {
+            transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
     </style>
 </head>
 <body class="text-slate-800">
@@ -145,10 +155,12 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useMemo } = React;
 
         // --- Configuration ---
-        const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSicCH85wQoRDXgLEha8ElEDEU2t61wxa9il-FX-A6FlJ2sQqmvfrs9uiwbUHu2pzcfB90ZpajtjGUE/pub?gid=1945670888&single=true&output=csv";
+        // New JSON APIs
+        const BOOKS_API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLg6SETg4QvdrMOqty9SpYhNLfhXeecFQ2NbP4LzB-ZUEMyMm-XCKptET_uE7MiOVW2iAcqFpcaj9QTeX7bfc8HpCkhar0K835sK4uSAsaf3GU7ZzT1RI217KzltdGAR-FV0Cxbodwq4aWrfvh8d69RfGax1b5l_dP0v9-IN-POMuO4UaIMXY0QD9onLsFxoHlWiKGUEfWJywShv9AoTJE8U80RqWZWZNeqB4DImsPEzTtfwxt_63U5D9Azs2ZoybXhd82jsYP68Z0eyCCySnFiqzDaPMg&lib=MCnBFScBMTtnncgp6aQSFgqjSmd3jpffu";
+        const STATS_API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLhtF4fKVgyGKXJ4gHExPWeTv1TKCRDnyym0J-dIaADv3qRswx2Ll9txKjMnh83T7I2pqZo5XlRS-2trFUEbbFzMkIEHGKqWPms2ne3gnjSXMhHU-pVVgvfwrFrWeulrmRAGwV6gpHbcB52Jk-qUbwam7JAlBUExCFES2WDwCkJ-zCpgIO80Zhnbv2GlIPa-DT5gPvQ4nL_PYYmZPTbEzI_fAW4OOwFfit43HD85n9WBxgyAoQKZq6hcATG230ksFy_dab2_6kwf14MUB4XR-l3-RHAlsg&lib=MeuVLgevlvBF3Dy5o0naf46jSmd3jpffu";
 
         // --- Icons ---
         const IconBook = ({ size = 24, className = "" }) => (
@@ -188,48 +200,20 @@
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 12 20 22 4 22 4 12"/><rect width="20" height="5" x="2" y="7"/><line x1="12" x2="12" y1="22" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
         );
 
+        // --- Shelf Configuration ---
+        // NEW: Brighter, child-friendly "Crayon Box" Palette
+        const BOOK_COLOURS = [
+            'bg-rose-400', 'bg-rose-500', 
+            'bg-sky-400', 'bg-sky-500', 
+            'bg-lime-400', 'bg-lime-500',
+            'bg-amber-300', 'bg-amber-400', 
+            'bg-violet-400', 'bg-violet-500',
+            'bg-orange-400', 'bg-orange-500',
+            'bg-fuchsia-400', 'bg-teal-400'
+        ];
+        const SPINE_PATTERNS = ['solid', 'striped-top', 'striped-bottom', 'label-mid'];
+
         // --- Utilities ---
-        
-        // Robust CSV Parser
-        const parseCSV = (text) => {
-            const rows = [];
-            let currentRow = [];
-            let currentCell = '';
-            let insideQuotes = false;
-
-            for (let i = 0; i < text.length; i++) {
-                const char = text[i];
-                const nextChar = text[i + 1];
-
-                if (char === '"') {
-                    if (insideQuotes && nextChar === '"') {
-                        currentCell += '"'; // Escaped quote
-                        i++;
-                    } else {
-                        insideQuotes = !insideQuotes;
-                    }
-                } else if (char === ',' && !insideQuotes) {
-                    currentRow.push(currentCell.trim());
-                    currentCell = '';
-                } else if ((char === '\r' || char === '\n') && !insideQuotes) {
-                    if (currentCell || currentRow.length > 0) {
-                        currentRow.push(currentCell.trim());
-                        rows.push(currentRow);
-                        currentRow = [];
-                        currentCell = '';
-                    }
-                    if (char === '\r' && nextChar === '\n') i++;
-                } else {
-                    currentCell += char;
-                }
-            }
-            if (currentCell || currentRow.length > 0) {
-                currentRow.push(currentCell.trim());
-                rows.push(currentRow);
-            }
-            return rows;
-        };
-
         const getRandomColor = (id) => {
             const colors = ["bg-emerald-700", "bg-pink-600", "bg-blue-600", "bg-orange-600", "bg-teal-600", "bg-indigo-600", "bg-amber-700", "bg-rose-600"];
             // Simple string hash fallback if ID isn't numeric
@@ -238,6 +222,129 @@
         };
 
         // --- Components ---
+
+        // NEW: Shelf Component
+        const BookShelfVisual = ({ percentage = 60 }) => {
+            const TOTAL_BOOKS = 50;
+            const [displayPercentage, setDisplayPercentage] = useState(0); // Triggers visual book growth
+            const [countLabel, setCountLabel] = useState(0); // Triggers number counting
+
+            // Animate on mount or when percentage changes
+            useEffect(() => {
+                // 1. Trigger the visual book growth
+                const timer = setTimeout(() => {
+                    setDisplayPercentage(percentage);
+                }, 100); 
+
+                // 2. Animate the number counting up
+                let startTimestamp = null;
+                const duration = 2000; // 2 seconds
+                
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    
+                    // Easing function for numbers (easeOutQuad)
+                    const easeProgress = 1 - (1 - progress) * (1 - progress);
+                    
+                    // Don't let it exceed the target percentage
+                    const currentValue = Math.floor(easeProgress * percentage);
+                    setCountLabel(currentValue);
+                    
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    } else {
+                        setCountLabel(percentage); // Ensure final value is exact
+                    }
+                };
+                
+                const numberTimer = setTimeout(() => {
+                    window.requestAnimationFrame(step);
+                }, 100);
+
+                return () => {
+                    clearTimeout(timer);
+                    clearTimeout(numberTimer);
+                };
+            }, [percentage]);
+
+            const shelfBooks = useMemo(() => {
+                return Array.from({ length: TOTAL_BOOKS }).map((_, i) => {
+                    const randomSeed = (i * 1337) % 100; 
+                    return {
+                        id: i,
+                        height: 70 + (randomSeed % 26), 
+                        colour: BOOK_COLOURS[randomSeed % BOOK_COLOURS.length],
+                        width: 1 + (randomSeed % 3) * 0.2, 
+                        pattern: SPINE_PATTERNS[randomSeed % SPINE_PATTERNS.length],
+                        tilt: (randomSeed % 10 === 0) ? (randomSeed % 3 === 0 ? -2 : 2) : 0 
+                    };
+                });
+            }, []);
+
+            const visibleBookCount = Math.round((displayPercentage / 100) * TOTAL_BOOKS);
+
+            return (
+                <div className="w-full max-w-2xl mx-auto my-8 perspective-1000 animate-slide-up">
+                    <div className="relative">
+                        {/* Shelf Structure (New: Light Pine/Birch Wood) */}
+                        <div className="w-full h-24 md:h-40 bg-[#e8d5b5] relative rounded-sm shadow-xl flex items-end px-4 border-b-[8px] md:border-b-[12px] border-[#cbb593]">
+                            
+                            {/* Wood Grain/Shadow Overlay - Lighter/Softer */}
+                            <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-black/5 pointer-events-none rounded-sm"></div>
+                            
+                            {/* Back of shelf shadow */}
+                            <div className="absolute inset-x-2 bottom-2 top-2 bg-[#dcc4a0] shadow-inner rounded-sm -z-0"></div>
+
+                            {/* Books Container */}
+                            <div className="relative z-10 w-full h-[90%] flex items-end justify-start gap-[1px] md:gap-[2px] px-2">
+                                {shelfBooks.map((book, index) => (
+                                    <div
+                                        key={book.id}
+                                        className={`
+                                            relative transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom 
+                                            ${book.colour} shadow-sm group border-white/10 border-r border-l
+                                        `}
+                                        style={{
+                                            // Ensure they are rendered but hidden if not visible yet to allow transition
+                                            height: index < visibleBookCount ? `${book.height}%` : '0%',
+                                            opacity: index < visibleBookCount ? 1 : 0,
+                                            flexGrow: book.width,
+                                            transform: `rotate(${book.tilt}deg) translateY(${index < visibleBookCount ? '0' : '10px'})`,
+                                            marginRight: (index % 7 === 0) ? '1px' : '0px',
+                                            // Stagger effect: books grow one after another from left to right
+                                            transitionDelay: `${index * 30}ms` 
+                                        }}
+                                    >
+                                        {/* Spine Details */}
+                                        <div className="absolute inset-0 w-full h-full border-r border-white/20 border-l border-black/10 rounded-sm overflow-hidden hidden md:block">
+                                            <div className="absolute left-0.5 top-0 bottom-0 w-[1px] bg-white/20"></div>
+                                            {book.pattern === 'striped-top' && (
+                                                <div className="absolute top-4 w-full h-2 bg-white/30"></div>
+                                            )}
+                                            {book.pattern === 'striped-bottom' && (
+                                                <>
+                                                    <div className="absolute bottom-6 w-full h-1 bg-white/30"></div>
+                                                    <div className="absolute bottom-4 w-full h-1 bg-white/30"></div>
+                                                </>
+                                            )}
+                                            {book.pattern === 'label-mid' && (
+                                                <div className="absolute top-1/2 -translate-y-1/2 left-1 right-1 h-3 bg-white/40 rounded-[1px] shadow-sm"></div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        {/* Floating Label - Now using countLabel */}
+                        <div className="absolute -top-6 right-0 bg-yellow-400 text-blue-900 text-xs font-bold px-3 py-1 rounded-full shadow-lg border-2 border-white animate-pulse-soft transform rotate-2 transition-all">
+                            {countLabel}% Reached
+                        </div>
+                    </div>
+                </div>
+            );
+        };
 
         const ProductCard = ({ item, onQuickAdd, onViewDetails }) => {
           const isSponsored = item.sponsored;
@@ -525,6 +632,9 @@
           const [inventory, setInventory] = useState([]);
           const [loading, setLoading] = useState(true);
           const [error, setError] = useState(null);
+          
+          // New: Stats State
+          const [shelfStats, setShelfStats] = useState({ total: 0, sold: 0, percentage: 0 });
 
           const [cart, setCart] = useState([]);
           const [isCartOpen, setIsCartOpen] = useState(false);
@@ -540,51 +650,64 @@
           const [donorName, setDonorName] = useState("");
           const [notification, setNotification] = useState(null);
 
-          // Fetch Data from Google Sheet
+          // Fetch Data (Books and Stats)
           useEffect(() => {
-            fetch(SHEET_CSV_URL)
-                .then(response => {
-                    if (!response.ok) throw new Error("Network response was not ok");
-                    return response.text();
-                })
-                .then(text => {
-                    const rows = parseCSV(text);
-                    const headers = rows[0].map(h => h.toLowerCase().trim());
+            const fetchBooks = async () => {
+                try {
+                    const response = await fetch(BOOKS_API_URL);
+                    const data = await response.json();
                     
-                    const mappedData = rows.slice(1).map((row, index) => {
-                        const getCol = (name) => {
-                            const idx = headers.findIndex(h => h.includes(name));
-                            return idx !== -1 ? row[idx] : "";
-                        };
-
-                        const title = getCol("title") || "Untitled";
-                        const author = getCol("author") || "Unknown";
-                        const priceStr = getCol("price") || "0";
-                        const price = parseFloat(priceStr.replace(/[^0-9.]/g, '')) || 0;
-                        const synopsis = getCol("synopsis") || "";
-                        const image = getCol("image") || "";
-
-                        if (!title || title === "Untitled") return null;
-
+                    // Map raw JSON to internal format
+                    const mappedData = data.map((item, index) => {
+                        // Ensure price is a number
+                        let price = 0;
+                        if (typeof item.price === 'number') price = item.price;
+                        else if (typeof item.price === 'string') price = parseFloat(item.price.replace(/[^0-9.]/g, ''));
+                        
                         return {
-                            id: index + 1000,
-                            title,
-                            author,
-                            price,
-                            synopsis,
-                            image,
-                            sponsored: false 
+                            id: index + 1000, // Generate ID
+                            title: item.title || "Untitled",
+                            author: item.author || "Unknown",
+                            price: price || 0,
+                            synopsis: item.synopsis || "",
+                            image: item.image || "",
+                            sponsored: false // Default
                         };
-                    }).filter(item => item !== null);
-
+                    });
                     setInventory(mappedData);
-                    setLoading(false);
-                })
-                .catch(err => {
-                    console.error("Error fetching sheet:", err);
+                } catch (err) {
+                    console.error("Error fetching books:", err);
                     setError("Unable to load book list. Please try again later.");
-                    setLoading(false);
-                });
+                }
+            };
+
+            const fetchStats = async () => {
+                try {
+                    const response = await fetch(STATS_API_URL);
+                    const data = await response.json();
+                    
+                    // Calculate Percentage
+                    let pct = 0;
+                    if (data.total > 0) {
+                        pct = Math.round((data.sold / data.total) * 100);
+                    }
+                    
+                    setShelfStats({
+                        total: data.total || 0,
+                        sold: data.sold || 0,
+                        percentage: pct
+                    });
+                } catch (err) {
+                    console.error("Error fetching stats:", err);
+                    // Fail silently for stats, just show 0%
+                }
+            };
+
+            // Run fetches concurrently
+            Promise.all([fetchBooks(), fetchStats()]).then(() => {
+                setLoading(false);
+            });
+            
           }, []);
 
           const filteredItems = inventory.filter(item => {
@@ -736,12 +859,9 @@
                       <p className="text-amber-300 text-2xl font-bold italic font-serif mb-6">
                         ~ A Small Gift, A Love of Reading for Life ~
                       </p>
-                      <div className="w-32 h-1.5 bg-gradient-to-r from-amber-400 to-yellow-500 mx-auto mb-8 rounded-full"></div>
                       
-                      <p className="text-blue-900 font-medium text-lg max-w-2xl mx-auto leading-relaxed bg-white/95 backdrop-blur-md px-8 py-4 rounded-2xl shadow-xl">
-                        Select books to sponsor our library. <br className="hidden sm:block"/>
-                        Once a book is sponsored, it is removed from the registry list.
-                      </p>
+                      {/* NEW: Shelf Visualization (Dynamic Percentage) */}
+                      <BookShelfVisual percentage={shelfStats.percentage} />
 
                       {/* General Donation Button */}
                       <div className="mt-8 flex flex-col items-center animate-slide-up" style={{animationDelay: '0.2s'}}>
