@@ -285,16 +285,21 @@
             const visibleBookCount = Math.round((displayPercentage / 100) * TOTAL_BOOKS);
 
             return (
-                <div className="w-full max-w-2xl mx-auto my-8 perspective-1000 animate-slide-up">
-                    <div className="relative">
-                        {/* Shelf Structure (New: Light Pine/Birch Wood) */}
-                        <div className="w-full h-24 md:h-40 bg-[#e8d5b5] relative rounded-sm shadow-xl flex items-end px-4 border-b-[8px] md:border-b-[12px] border-[#cbb593]">
+                <div className="w-full max-w-2xl mx-auto my-8 perspective-1000 animate-slide-up px-4">
+                    <div className="relative mb-2">
+                        {/* Floating Label - Now using countLabel */}
+                        <div className="absolute -top-6 right-0 bg-yellow-400 text-blue-900 text-xs font-bold px-3 py-1 rounded-full shadow-lg border-2 border-white animate-pulse-soft transform rotate-2 transition-all z-20">
+                            {countLabel}% Reached
+                        </div>
+
+                        {/* Shelf Structure (New: Light Pine/Birch Wood) - Note rounded-t only */}
+                        <div className="w-full h-24 md:h-40 bg-[#e8d5b5] relative rounded-t-sm shadow-xl flex items-end px-4">
                             
                             {/* Wood Grain/Shadow Overlay - Lighter/Softer */}
-                            <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-black/5 pointer-events-none rounded-sm"></div>
+                            <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-black/5 pointer-events-none rounded-t-sm"></div>
                             
                             {/* Back of shelf shadow */}
-                            <div className="absolute inset-x-2 bottom-2 top-2 bg-[#dcc4a0] shadow-inner rounded-sm -z-0"></div>
+                            <div className="absolute inset-x-2 bottom-0 top-2 bg-[#dcc4a0] shadow-inner rounded-t-sm -z-0"></div>
 
                             {/* Books Container */}
                             <div className="relative z-10 w-full h-[90%] flex items-end justify-start gap-[1px] md:gap-[2px] px-2">
@@ -337,9 +342,32 @@
                             </div>
                         </div>
                         
-                        {/* Floating Label - Now using countLabel */}
-                        <div className="absolute -top-6 right-0 bg-yellow-400 text-blue-900 text-xs font-bold px-3 py-1 rounded-full shadow-lg border-2 border-white animate-pulse-soft transform rotate-2 transition-all">
-                            {countLabel}% Reached
+                        {/* The Ledge / Progress Bar (Split into two tones) */}
+                        <div className="w-full shadow-xl rounded-b-md overflow-hidden flex flex-col">
+                            {/* Tone 1: Top Ledge (Wood) - Slimmer */}
+                            <div className="h-2 md:h-3 bg-[#cbb593] relative z-10 border-b border-[#a89070]"></div>
+
+                            {/* Tone 2: Bottom Bar (Progress) */}
+                            <div className="h-3 md:h-4 bg-[#5d4037] relative"> {/* Darker background for the empty bar */}
+                                <div
+                                    className="h-full bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 shadow-[0_0_15px_rgba(251,191,36,0.4)] relative"
+                                    style={{
+                                        width: `${displayPercentage}%`,
+                                        transition: 'width 2s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                                    }}
+                                >
+                                     <div className="absolute top-0 bottom-0 right-0 w-1 bg-white/50 blur-[1px]"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Increments under the bar */}
+                        <div className="flex justify-between mt-2 text-[10px] sm:text-xs font-serif font-bold text-blue-200/80 px-1">
+                            <span>0%</span>
+                            <span>25%</span>
+                            <span>50%</span>
+                            <span>75%</span>
+                            <span>Target: 100%</span>
                         </div>
                     </div>
                 </div>
