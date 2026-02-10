@@ -199,6 +199,9 @@
         const IconGift = ({ size = 24, className = "" }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 12 20 22 4 22 4 12"/><rect width="20" height="5" x="2" y="7"/><line x1="12" x2="12" y1="22" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
         );
+        const IconRefresh = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+        );
 
         // --- Shelf Configuration ---
         // NEW: Brighter, child-friendly "Crayon Box" Palette
@@ -659,6 +662,7 @@
         function App() {
           const [inventory, setInventory] = useState([]);
           const [loading, setLoading] = useState(true);
+          const [verifying, setVerifying] = useState(false); // New state for checkout verification
           const [error, setError] = useState(null);
           
           // New: Stats State
@@ -682,24 +686,24 @@
           useEffect(() => {
             const fetchBooks = async () => {
                 try {
-                    const response = await fetch(BOOKS_API_URL);
+                    // Added cache busting via &t=${Date.now()}
+                    const response = await fetch(`${BOOKS_API_URL}&t=${Date.now()}`);
                     const data = await response.json();
                     
                     // Map raw JSON to internal format
                     const mappedData = data.map((item, index) => {
-                        // Ensure price is a number
                         let price = 0;
                         if (typeof item.price === 'number') price = item.price;
                         else if (typeof item.price === 'string') price = parseFloat(item.price.replace(/[^0-9.]/g, ''));
                         
                         return {
-                            id: index + 1000, // Generate ID
+                            id: index + 1000, 
                             title: item.title || "Untitled",
                             author: item.author || "Unknown",
                             price: price || 0,
                             synopsis: item.synopsis || "",
                             image: item.image || "",
-                            sponsored: false // Default
+                            sponsored: false 
                         };
                     });
                     setInventory(mappedData);
@@ -711,10 +715,10 @@
 
             const fetchStats = async () => {
                 try {
-                    const response = await fetch(STATS_API_URL);
+                    // Added cache busting
+                    const response = await fetch(`${STATS_API_URL}&t=${Date.now()}`);
                     const data = await response.json();
                     
-                    // Calculate Percentage
                     let pct = 0;
                     if (data.total > 0) {
                         pct = Math.round((data.sold / data.total) * 100);
@@ -727,16 +731,87 @@
                     });
                 } catch (err) {
                     console.error("Error fetching stats:", err);
-                    // Fail silently for stats, just show 0%
                 }
             };
 
-            // Run fetches concurrently
             Promise.all([fetchBooks(), fetchStats()]).then(() => {
                 setLoading(false);
             });
             
           }, []);
+
+          // NEW: Function to verify cart before checkout
+          const verifyAndCheckout = async () => {
+              setVerifying(true); // Show loading state on button
+              
+              try {
+                  // 1. Fetch latest data (Fresh)
+                  const response = await fetch(`${BOOKS_API_URL}&t=${Date.now()}`);
+                  const freshData = await response.json();
+                  
+                  // 2. Identify items in cart that are now taken
+                  const takenItems = [];
+                  const newCart = cart.filter(cartItem => {
+                      if (cartItem.id === 'donation') return true; // Donations always safe
+                      
+                      // Find matching book in fresh data by Title & Author (more robust than ID if sheet rows change)
+                      const freshBook = freshData.find(b => 
+                          (b.title || "").trim() === cartItem.title && 
+                          (b.author || "").trim() === cartItem.author
+                      );
+                      
+                      // Note: Assuming your API returns "sponsored": true/false in the JSON, or removes the row?
+                      // If the book is MISSING from the feed (because it's sold and filtered out by App Script), we consider it taken.
+                      // If the book is PRESENT but marked sponsored (if your script does that), we check that property.
+                      
+                      // Logic: If we can't find it in the fresh list, or we find it and it's invalid
+                      if (!freshBook) {
+                           // If script filters sold items out completely
+                           takenItems.push(cartItem.title);
+                           return false; 
+                      }
+                      
+                      // If script returns everything but marks sponsored
+                      if (freshBook.sponsored === true) {
+                          takenItems.push(cartItem.title);
+                          return false;
+                      }
+                      
+                      return true;
+                  });
+
+                  // 3. Handle conflict
+                  if (takenItems.length > 0) {
+                      setCart(newCart);
+                      // Update main view too so they see the changes
+                      const mappedFreshData = freshData.map((item, index) => ({
+                           // Simplified mapping for update
+                           id: index + 1000,
+                           title: item.title,
+                           author: item.author,
+                           price: typeof item.price === 'number' ? item.price : parseFloat(item.price),
+                           synopsis: item.synopsis,
+                           image: item.image,
+                           sponsored: item.sponsored || false
+                      }));
+                      setInventory(mappedFreshData);
+                      
+                      setNotification(`Sorry! These items were just taken: ${takenItems.join(", ")}`);
+                      // Do not open checkout
+                  } else {
+                      // 4. Success - proceed
+                      setIsCartOpen(false);
+                      setShowSuccessModal(false);
+                      setIsCheckoutOpen(true);
+                  }
+                  
+              } catch (err) {
+                  console.error("Verification failed", err);
+                  setNotification("Connection error. Please try again.");
+              } finally {
+                  setVerifying(false);
+              }
+          };
 
           const filteredItems = inventory.filter(item => {
             const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -746,37 +821,30 @@
 
           const cartTotal = cart.reduce((sum, item) => sum + item.price, 0);
           
-          // Identify if there is a donation in the cart for passing to JotForm
           const donationItem = cart.find(item => item.id === 'donation');
           const donationAmount = donationItem ? donationItem.price : 0;
 
           const addToCart = (item) => {
             if (!item) return;
-            
-            // Check duplicates (unless it's a donation, which we might just update)
             const existingItem = cart.find(c => c.id === item.id);
             if (existingItem && item.id !== 'donation') {
                 setNotification("This item is already in your selection.");
                 setTimeout(() => setNotification(null), 3000);
                 return;
             }
-
-            // If it's a donation, remove old donation first (swap it out)
             let newCart = [...cart];
             if (item.id === 'donation') {
                 newCart = newCart.filter(c => c.id !== 'donation');
             }
-
             const newItem = {
               ...item,
               cartId: item.id === 'donation' ? 'donation-cart-id' : Date.now(),
               details: 'Registry Item'
             };
-            
             setCart([...newCart, newItem]);
             setLastAddedItem(newItem);
             setShowSuccessModal(true);
-            setIsDonationModalOpen(false); // Close donation modal if open
+            setIsDonationModalOpen(false); 
           };
 
           const handleAddDonation = (amount) => {
@@ -785,7 +853,7 @@
                   title: 'General Donation',
                   author: 'Scoil Íosagáin Library',
                   price: amount,
-                  image: '', // Could add a placeholder icon URL
+                  image: '', 
                   sponsored: false
               };
               addToCart(donationItem);
@@ -796,20 +864,8 @@
              setLastAddedItem(null);
           };
 
-          const handleCheckoutNow = () => {
-             setShowSuccessModal(false);
-             setLastAddedItem(null);
-             setIsCartOpen(false); 
-             setIsCheckoutOpen(true); 
-          };
-
           const removeFromCart = (cartId) => {
             setCart(cart.filter(item => item.cartId !== cartId));
-          };
-
-          const handleJotFormCheckout = () => {
-              setIsCartOpen(false);
-              setIsCheckoutOpen(true);
           };
 
           const bookString = cart.map(item => item.title).join(" | ");
@@ -1090,11 +1146,21 @@
                           You will be redirected to JotForm to complete payment via Stripe.
                         </p>
                         <button 
-                          onClick={handleJotFormCheckout}
-                          className="w-full py-5 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 rounded-xl font-bold text-lg hover:shadow-premium transition-all flex items-center justify-center gap-3 shadow-lg"
+                          onClick={verifyAndCheckout} // Changed: Now verifies before opening iframe
+                          disabled={verifying}
+                          className={`w-full py-5 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 rounded-xl font-bold text-lg hover:shadow-premium transition-all flex items-center justify-center gap-3 shadow-lg ${verifying ? 'opacity-80 cursor-wait' : ''}`}
                         >
-                          Proceed to Payment
-                          <IconExternalLink size={22} />
+                          {verifying ? (
+                              <>
+                                <span className="animate-spin mr-2"><IconLoader size={20} /></span>
+                                Checking availability...
+                              </>
+                          ) : (
+                              <>
+                                Proceed to Payment
+                                <IconExternalLink size={22} />
+                              </>
+                          )}
                         </button>
                       </div>
                     )}
@@ -1139,11 +1205,18 @@
                             Continue Browsing
                         </button>
                         <button 
-                            onClick={handleCheckoutNow}
-                            className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-800 to-blue-600 text-white font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                            onClick={verifyAndCheckout} // Changed to verification function
+                            disabled={verifying}
+                            className={`px-6 py-3 rounded-xl bg-gradient-to-r from-blue-800 to-blue-600 text-white font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2 ${verifying ? 'opacity-80 cursor-wait' : ''}`}
                         >
-                            Checkout Now
-                            <IconArrowRight size={20} />
+                            {verifying ? (
+                                <>Checking...</>
+                            ) : (
+                                <>
+                                Checkout Now
+                                <IconArrowRight size={20} />
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>
