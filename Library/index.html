@@ -241,7 +241,7 @@
 
                 // 2. Animate the number counting up
                 let startTimestamp = null;
-                const duration = 2000; // 2 seconds
+                const duration = 800; // .8 seconds
                 
                 const step = (timestamp) => {
                     if (!startTimestamp) startTimestamp = timestamp;
@@ -321,7 +321,7 @@
                                             transform: `rotate(${book.tilt}deg) translateY(${index < visibleBookCount ? '0' : '10px'})`,
                                             marginRight: (index % 7 === 0) ? '1px' : '0px',
                                             // Stagger effect: books grow one after another from left to right
-                                            transitionDelay: `${index * 30}ms` 
+                                            transitionDelay: `${index * 10}ms` 
                                         }}
                                     >
                                         {/* Spine Details */}
