@@ -237,7 +237,7 @@
                 // 1. Trigger the visual book growth
                 const timer = setTimeout(() => {
                     setDisplayPercentage(percentage);
-                }, 100); 
+                }, 1); 
 
                 // 2. Animate the number counting up
                 let startTimestamp = null;
@@ -263,7 +263,7 @@
                 
                 const numberTimer = setTimeout(() => {
                     window.requestAnimationFrame(step);
-                }, 100);
+                }, 1);
 
                 return () => {
                     clearTimeout(timer);
