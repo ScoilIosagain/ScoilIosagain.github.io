@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoil Íosagáin - Thank You</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="https://storage.googleapis.com/siteassetsswd/839/default/20250728102007_24_default.jpg" type="image/jpeg">
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Custom Styles */
+        body { 
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+        }
+        
+        .bg-brand-gradient {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        }
+
+        h1, h2, h3, h4, .font-serif { font-family: 'Playfair Display', serif; }
+        
+        /* Glassmorphism utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .glass-strong {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .glass-dark {
+            background: rgba(30, 58, 138, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Animations */
+        @keyframes slide-up {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-slide-up { animation: slide-up 0.8s ease-out forwards; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        .animate-float { animation: float 4s ease-in-out infinite; }
+
+        @keyframes pulse-soft {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(251,191,36,0.4)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 0 25px rgba(251,191,36,0.8)); }
+        }
+        .animate-pulse-soft { animation: pulse-soft 3s ease-in-out infinite; }
+
+        /* Floating Hearts Animation */
+        @keyframes float-heart {
+            0% { 
+                transform: translateY(10vh) scale(0.5) rotate(-15deg); 
+                opacity: 0; 
+            }
+            10% { 
+                opacity: 0.8; 
+            }
+            80% { 
+                opacity: 0.8; 
+            }
+            100% { 
+                transform: translateY(-110vh) scale(1.2) rotate(15deg); 
+                opacity: 0; 
+            }
+        }
+        .floating-heart {
+            position: absolute;
+            bottom: -10%;
+            animation: float-heart linear infinite;
+            z-index: 10;
+        }
+
+        .shadow-premium {
+            box-shadow: 0 20px 60px rgba(37, 99, 235, 0.25);
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        /* Shelf 3D perspective */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo, useRef } = React;
+
+        // --- Icons ---
+        const IconHeart = ({ size = 24, className = "", fill = "currentColor" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+        );
+        const IconBookHeart = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M12 11.5a2.5 2.5 0 1 0-5 0c0 2.5 2.5 4.5 2.5 4.5s2.5-2 2.5-4.5Z"/></svg>
+        );
+        const IconStars = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+        );
+
+        // --- Shelf Configuration ---
+        const BOOK_COLOURS = [
+            'bg-rose-400', 'bg-rose-500', 
+            'bg-sky-400', 'bg-sky-500', 
+            'bg-lime-400', 'bg-lime-500',
+            'bg-amber-300', 'bg-amber-400', 
+            'bg-violet-400', 'bg-violet-500',
+            'bg-orange-400', 'bg-orange-500',
+            'bg-fuchsia-400', 'bg-teal-400'
+        ];
+        const SPINE_PATTERNS = ['solid', 'striped-top', 'striped-bottom', 'label-mid'];
+
+        // --- Components ---
+
+        // Floating Hearts Background Component
+        const FloatingHearts = () => {
+            // Pre-defined random-looking values to avoid hydration/render mismatches
+            const heartConfigs = [
+                { left: '10%', delay: '0s', duration: '12s', size: 32, color: 'text-red-400', fill: 'rgba(248, 113, 113, 0.4)' },
+                { left: '25%', delay: '2s', duration: '15s', size: 24, color: 'text-pink-300', fill: 'rgba(244, 114, 182, 0.4)' },
+                { left: '40%', delay: '5s', duration: '11s', size: 48, color: 'text-red-500', fill: 'rgba(239, 68, 68, 0.3)' },
+                { left: '55%', delay: '1s', duration: '14s', size: 28, color: 'text-amber-300', fill: 'rgba(252, 211, 77, 0.4)' },
+                { left: '70%', delay: '4s', duration: '13s', size: 36, color: 'text-rose-400', fill: 'rgba(251, 113, 133, 0.4)' },
+                { left: '85%', delay: '7s', duration: '16s', size: 20, color: 'text-pink-400', fill: 'rgba(244, 114, 182, 0.5)' },
+                { left: '15%', delay: '8s', duration: '14s', size: 40, color: 'text-red-300', fill: 'rgba(252, 165, 165, 0.4)' },
+                { left: '35%', delay: '11s', duration: '12s', size: 22, color: 'text-rose-500', fill: 'rgba(244, 63, 94, 0.3)' },
+                { left: '65%', delay: '9s', duration: '15s', size: 30, color: 'text-pink-500', fill: 'rgba(236, 72, 153, 0.4)' },
+                { left: '80%', delay: '3s', duration: '11s', size: 44, color: 'text-amber-400', fill: 'rgba(251, 191, 36, 0.4)' },
+                { left: '5%', delay: '13s', duration: '17s', size: 26, color: 'text-red-400', fill: 'rgba(248, 113, 113, 0.4)' },
+                { left: '95%', delay: '6s', duration: '13s', size: 34, color: 'text-rose-300', fill: 'rgba(253, 164, 175, 0.4)' }
+            ];
+
+            return (
+                <div className="fixed inset-0 w-full h-full overflow-hidden pointer-events-none z-10">
+                    {heartConfigs.map((config, i) => (
+                        <div 
+                            key={i} 
+                            className="floating-heart"
+                            style={{
+                                left: config.left,
+                                animationDelay: config.delay,
+                                animationDuration: config.duration
+                            }}
+                        >
+                            <IconHeart size={config.size} className={config.color} fill={config.fill} />
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+
+        // Full Bookshelf Component
+        const FullBookShelfVisual = () => {
+            const TOTAL_BOOKS = 50;
+            const [displayPercentage, setDisplayPercentage] = useState(0); 
+            const [countLabel, setCountLabel] = useState(0);
+            const shelfRef = useRef(null);
+            const [hasAnimated, setHasAnimated] = useState(false);
+
+            // Animate to 100% on scroll or mount to give a nice filling effect
+            useEffect(() => {
+                const observer = new IntersectionObserver((entries) => {
+                    if (entries[0].isIntersecting && !hasAnimated) {
+                        setHasAnimated(true);
+                        
+                        const timer = setTimeout(() => {
+                            setDisplayPercentage(100);
+                        }, 100); 
+
+                        // Animate numbers
+                        let startTimestamp = null;
+                        const duration = 2500; // 2.5 seconds
+                        
+                        const step = (timestamp) => {
+                            if (!startTimestamp) startTimestamp = timestamp;
+                            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                            const easeProgress = 1 - Math.pow(1 - progress, 3);
+                            
+                            setCountLabel(Math.floor(easeProgress * 100));
+                            
+                            if (progress < 1) {
+                                window.requestAnimationFrame(step);
+                            } else {
+                                setCountLabel(100);
+                            }
+                        };
+                        window.requestAnimationFrame(step);
+
+                        return () => clearTimeout(timer);
+                    }
+                }, { threshold: 0.3 });
+
+                if (shelfRef.current) {
+                    observer.observe(shelfRef.current);
+                }
+
+                return () => observer.disconnect();
+            }, [hasAnimated]);
+
+            const shelfBooks = useMemo(() => {
+                return Array.from({ length: TOTAL_BOOKS }).map((_, i) => {
+                    const randomSeed = (i * 1337) % 100; 
+                    return {
+                        id: i,
+                        height: 70 + (randomSeed % 26), 
+                        colour: BOOK_COLOURS[randomSeed % BOOK_COLOURS.length],
+                        width: 1 + (randomSeed % 3) * 0.2, 
+                        pattern: SPINE_PATTERNS[randomSeed % SPINE_PATTERNS.length],
+                        tilt: (randomSeed % 10 === 0) ? (randomSeed % 3 === 0 ? -2 : 2) : 0 
+                    };
+                });
+            }, []);
+
+            const visibleBookCount = Math.round((displayPercentage / 100) * TOTAL_BOOKS);
+
+            return (
+                <div ref={shelfRef} className="w-full max-w-3xl mx-auto mt-12 mb-8 perspective-1000 animate-slide-up px-4" style={{animationDelay: '0.4s', opacity: 0}}>
+                    <div className="relative mb-2">
+                        {/* 100% Complete Floating Label */}
+                        <div className="absolute -top-8 right-4 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 text-sm md:text-base font-black px-6 py-2 rounded-full shadow-[0_0_20px_rgba(251,191,36,0.6)] border-2 border-white animate-pulse-soft transform rotate-2 z-20 flex items-center gap-2">
+                            <IconStars size={18} />
+                            {countLabel}% Fully Stocked!
+                        </div>
+
+                        {/* Shelf Structure */}
+                        <div className="w-full h-28 md:h-48 bg-[#e8d5b5] relative rounded-t-sm shadow-xl flex items-end px-4 border-x border-t border-white/20">
+                            
+                            {/* Wood Grain/Shadow Overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-black/5 pointer-events-none rounded-t-sm"></div>
+                            
+                            {/* Back of shelf shadow */}
+                            <div className="absolute inset-x-2 bottom-0 top-2 bg-[#dcc4a0] shadow-inner rounded-t-sm -z-0"></div>
+
+                            {/* Books Container */}
+                            <div className="relative z-10 w-full h-[90%] flex items-end justify-start gap-[1px] md:gap-[2px] px-2">
+                                {shelfBooks.map((book, index) => (
+                                    <div
+                                        key={book.id}
+                                        className={`
+                                            relative transition-all duration-[1500ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom 
+                                            ${book.colour} shadow-sm group border-white/10 border-r border-l
+                                        `}
+                                        style={{
+                                            height: index < visibleBookCount ? `${book.height}%` : '0%',
+                                            opacity: index < visibleBookCount ? 1 : 0,
+                                            flexGrow: book.width,
+                                            transform: `rotate(${book.tilt}deg) translateY(${index < visibleBookCount ? '0' : '20px'})`,
+                                            marginRight: (index % 7 === 0) ? '1px' : '0px',
+                                            transitionDelay: `${index * 20}ms` 
+                                        }}
+                                    >
+                                        {/* Spine Details */}
+                                        <div className="absolute inset-0 w-full h-full border-r border-white/20 border-l border-black/10 rounded-sm overflow-hidden hidden md:block">
+                                            <div className="absolute left-0.5 top-0 bottom-0 w-[1px] bg-white/20"></div>
+                                            {book.pattern === 'striped-top' && (
+                                                <div className="absolute top-4 w-full h-2 bg-white/30"></div>
+                                            )}
+                                            {book.pattern === 'striped-bottom' && (
+                                                <>
+                                                    <div className="absolute bottom-6 w-full h-1 bg-white/30"></div>
+                                                    <div className="absolute bottom-4 w-full h-1 bg-white/30"></div>
+                                                </>
+                                            )}
+                                            {book.pattern === 'label-mid' && (
+                                                <div className="absolute top-1/2 -translate-y-1/2 left-1 right-1 h-3 bg-white/40 rounded-[1px] shadow-sm"></div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        {/* The Ledge / Progress Bar */}
+                        <div className="w-full shadow-2xl rounded-b-lg overflow-hidden flex flex-col relative z-20">
+                            {/* Top Ledge (Wood) */}
+                            <div className="h-3 md:h-4 bg-[#cbb593] relative z-10 border-b border-[#a89070]"></div>
+
+                            {/* Bottom Bar (Progress - Full) */}
+                            <div className="h-4 md:h-6 bg-[#5d4037] relative">
+                                <div
+                                    className="h-full bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 relative"
+                                    style={{
+                                        width: `${displayPercentage}%`,
+                                        transition: 'width 2.5s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                                    }}
+                                >
+                                    {/* Glowing effect on the full bar */}
+                                    <div className="absolute inset-0 bg-white/30 animate-pulse-soft"></div>
+                                    <div className="absolute top-0 bottom-0 right-0 w-2 bg-white/80 blur-[2px]"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* Progress Increments */}
+                        <div className="flex justify-between mt-2 text-[10px] sm:text-xs font-serif font-bold text-slate-500 px-1">
+                            <span>0%</span>
+                            <span>25%</span>
+                            <span>50%</span>
+                            <span>75%</span>
+                            <span>100%</span>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+
+        // --- Main App ---
+
+        function App() {
+          return (
+            <div className="min-h-screen font-sans text-slate-800 relative flex flex-col bg-brand-gradient">
+              
+              {/* Floating Background Orbs */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                <div className="orb w-[500px] h-[500px] bg-blue-700 absolute -top-40 -left-20" style={{animationDelay: '0s'}}></div>
+                <div className="orb w-[400px] h-[400px] bg-indigo-500 absolute top-1/3 -right-20" style={{animationDelay: '2s'}}></div>
+                <div className="orb w-[600px] h-[600px] bg-blue-600 absolute -bottom-40 left-1/4" style={{animationDelay: '4s'}}></div>
+              </div>
+
+              {/* Magical Floating Hearts */}
+              <FloatingHearts />
+
+              {/* --- Top Bar --- */}
+              <div className="glass-dark text-white text-xs py-3 px-4 relative z-30 border-b border-white/10">
+                <div className="max-w-7xl mx-auto flex justify-between items-center">
+                  <div className="flex gap-4">
+                      <span className="flex items-center gap-1.5"><span>📍</span> Farranree, Cork</span>
+                      <span className="hidden sm:flex items-center gap-1.5"><span>📞</span> 021 430 3302</span>
+                  </div>
+                  <div className="flex gap-4">
+                    <span className="text-amber-300 font-bold flex items-center gap-1.5">
+                       
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* --- Header --- */}
+              <header className="relative z-40 w-full pt-6 pb-2">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div className="flex flex-col items-center text-center gap-4">
+                    {/* Logo */}
+                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-full glass-strong overflow-hidden flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.2)] border-4 border-amber-400 animate-float">
+                      <img 
+                        src="https://storage.googleapis.com/siteassetsswd/839/default/20250728102007_24_default.jpg" 
+                        alt="Scoil Íosagáin Logo" 
+                        className="w-20 h-20 md:w-28 md:h-28 object-contain"
+                      />
+                    </div>
+                    <div className="text-white animate-slide-up" style={{animationDelay: '0.1s', opacity: 0}}>
+                      <h1 className="text-3xl md:text-5xl font-bold tracking-wide font-serif drop-shadow-lg">Scoil Íosagáin</h1>
+                      <p className="text-amber-300 text-sm md:text-base font-bold uppercase tracking-[0.3em] mt-2">Library Book Registry</p>
+                    </div>
+                  </div>
+                </div>
+              </header>
+
+              {/* --- Main "Thank You" Content --- */}
+              <main className="flex-grow flex flex-col items-center justify-center relative z-20 px-4 py-8">
+                
+                {/* Central Glass Card */}
+                <div className="w-full max-w-4xl glass-strong rounded-3xl shadow-premium p-8 md:p-14 text-center relative overflow-hidden animate-slide-up border border-white/50" style={{animationDelay: '0.2s', opacity: 0}}>
+                    
+                    {/* Decorative Top Banner */}
+                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-rose-400 via-amber-400 to-rose-400"></div>
+
+                    {/* Icon Graphic */}
+                    <div className="flex justify-center mb-8 relative">
+                        <div className="relative z-10 bg-gradient-to-br from-rose-50 to-pink-100 p-6 rounded-full shadow-inner border border-rose-200">
+                            <IconBookHeart size={64} className="text-rose-500 animate-pulse-soft" />
+                        </div>
+                        {/* Star decorations around icon */}
+                        <div className="absolute top-0 right-1/3 text-amber-400 animate-float" style={{animationDelay: '1s'}}>
+                             <IconStars size={24} />
+                        </div>
+                        <div className="absolute bottom-0 left-1/3 text-amber-400 animate-float" style={{animationDelay: '2s'}}>
+                             <IconStars size={20} />
+                        </div>
+                    </div>
+
+                    <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold font-serif gradient-text mb-4 leading-tight">
+                        Thank You!
+                    </h2>
+                    
+                    <h3 className="text-xl md:text-2xl font-bold text-slate-700 mb-8 font-serif">
+                        Every single book has been sponsored.
+                    </h3>
+
+                    <div className="max-w-2xl mx-auto space-y-6 text-slate-600 text-lg md:text-xl leading-relaxed">
+                        <p>
+                            We are absolutely overwhelmed by the incredible generosity of our school community. Because of your wonderful donations, the Scoil Íosagáin library is now fully stocked with beautiful new stories and educational adventures.
+                        </p>
+                        <p className="font-medium text-blue-900 bg-blue-50 py-4 px-6 rounded-2xl border border-blue-100">
+                            The book registry is officially closed. From the bottom of our hearts, thank you for sharing the magic of reading with our students.
+                        </p>
+                    </div>
+
+                </div>
+
+                {/* 100% Full Bookshelf Visual placed directly below the card */}
+                <FullBookShelfVisual />
+
+              </main>
+
+              {/* --- Footer & Contact --- */}
+              <footer className="glass-dark border-t border-white/20 pt-10 pb-8 text-blue-100 text-sm relative z-30 mt-auto">
+                <div className="max-w-7xl mx-auto px-4">
+                  <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-6 mb-8">
+                    
+                    {/* Address & Main Contact */}
+                    <div>
+                      <h4 className="text-amber-300 font-bold uppercase tracking-widest mb-3 flex items-center justify-center md:justify-start gap-2">
+                         <span className="text-lg">📍</span> Scoil Íosagáin
+                      </h4>
+                      <p className="leading-relaxed mb-3 text-white/90">
+                        Knockpogue Avenue, Farranree, Cork
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                        <p className="flex items-center gap-2">
+                           <span className="text-amber-300">Phone:</span> 
+                           <a href="tel:0214303302" className="hover:text-white transition-colors">021 430 3302</a>
+                        </p>
+                        <p className="flex items-center gap-2 hidden sm:flex">
+                           <span className="text-white/30">|</span>
+                        </p>
+                        <p className="flex items-center gap-2">
+                           <span className="text-amber-300">Fax:</span> (021) 430 3334
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Small Thank You Note */}
+                    <div className="bg-white/5 px-6 py-4 rounded-xl border border-white/10 max-w-xs">
+                        <p className="text-white text-center font-serif italic">
+                            "A book is a gift you can open again and again."
+                        </p>
+                    </div>
+
+                  </div>
+
+                  {/* Copyright */}
+                  <div className="pt-6 border-t border-white/10 text-center text-xs text-blue-200/60">
+                    &copy; 2026 Scoil Íosagáin. All rights reserved. Thank you for your support.
+                  </div>
+                </div>
+              </footer>
+              
+            </div>
+          );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
