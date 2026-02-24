@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scoil Íosagáin - Sponsor a Book</title>
+    <title>Scoil Íosagáin - Thank You</title>
     
     <!-- Favicon -->
     <link rel="icon" href="https://storage.googleapis.com/siteassetsswd/839/default/20250728102007_24_default.jpg" type="image/jpeg">
@@ -25,118 +25,97 @@
         /* Custom Styles */
         body { 
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
+            background-color: #1e3a8a; /* Fallback */
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
         }
         
         .bg-brand-gradient {
             background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            min-height: 100vh;
         }
 
         h1, h2, h3, h4, .font-serif { font-family: 'Playfair Display', serif; }
         
         /* Glassmorphism utilities */
-        .glass {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
         .glass-strong {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .glass-card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(226, 232, 240, 0.8);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
 
         .glass-dark {
             background: rgba(30, 58, 138, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         /* Animations */
-        @keyframes slide-left {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
-        }
-        .animate-slide-left { animation: slide-left 0.3s ease-out; }
-        
-        @keyframes scale-up {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        .animate-scale-up { animation: scale-up 0.2s ease-out; }
-
         @keyframes slide-up {
-            from { transform: translateY(20px); opacity: 0; }
+            from { transform: translateY(30px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-        .animate-slide-up { animation: slide-up 0.4s ease-out; }
+        .animate-slide-up { animation: slide-up 0.8s ease-out forwards; }
 
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+            50% { transform: translateY(-12px); }
         }
-        .animate-float { animation: float 3s ease-in-out infinite; }
+        .animate-float { animation: float 4s ease-in-out infinite; }
 
-        @keyframes spin-slow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        .animate-spin-slow { animation: spin-slow 3s linear infinite; }
-
+        /* Optimized pulse - NO CSS filters to prevent scroll lag! */
         @keyframes pulse-soft {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
         }
-        .animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 10px; }
-        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
-        ::-webkit-scrollbar-thumb { 
-            background: linear-gradient(180deg, #1e3a8a 0%, #3b82f6 100%);
-            border-radius: 5px; 
+        .animate-pulse-soft { 
+            animation: pulse-soft 3s ease-in-out infinite; 
+            will-change: transform;
         }
-        ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #3b82f6 0%, #1e3a8a 100%); }
 
-        /* Gradient text */
-        .gradient-text {
-            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        /* Floating Hearts Animation */
+        @keyframes float-heart {
+            0% { 
+                transform: translateY(10vh) scale(0.5) rotate(-15deg); 
+                opacity: 0; 
+            }
+            15% { 
+                opacity: 0.7; 
+            }
+            85% { 
+                opacity: 0.7; 
+            }
+            100% { 
+                transform: translateY(-110vh) scale(1.2) rotate(15deg); 
+                opacity: 0; 
+            }
+        }
+        .floating-heart {
+            position: absolute;
+            bottom: -10%;
+            animation: float-heart linear infinite;
+            will-change: transform, opacity; /* Hardware acceleration */
         }
 
         .shadow-premium {
-            box-shadow: 0 20px 60px rgba(37, 99, 235, 0.15);
+            box-shadow: 0 20px 50px rgba(37, 99, 235, 0.2);
+        }
+        
+        /* Glowing box shadow (better performance than CSS filter drop-shadow) */
+        .glow-shadow {
+            box-shadow: 0 0 20px rgba(251,191,36,0.6);
         }
 
         .orb {
             position: absolute;
             border-radius: 50%;
-            filter: blur(60px);
             opacity: 0.4;
-            animation: float 6s ease-in-out infinite;
-        }
-        
-        /* Hide scrollbar for clean modals but allow scroll */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+            /* Static blur is much better for performance than animated blur */
+            filter: blur(60px); 
+            will-change: transform;
         }
         
         /* Shelf 3D perspective */
@@ -144,9 +123,11 @@
             perspective: 1000px;
         }
         
-        /* Smooth bounce for books growing */
-        .transition-bouncy {
-            transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+        .gradient-text {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
     </style>
 </head>
@@ -155,56 +136,17 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
-
-        // --- Configuration ---
-        // New JSON APIs
-        const BOOKS_API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLg6SETg4QvdrMOqty9SpYhNLfhXeecFQ2NbP4LzB-ZUEMyMm-XCKptET_uE7MiOVW2iAcqFpcaj9QTeX7bfc8HpCkhar0K835sK4uSAsaf3GU7ZzT1RI217KzltdGAR-FV0Cxbodwq4aWrfvh8d69RfGax1b5l_dP0v9-IN-POMuO4UaIMXY0QD9onLsFxoHlWiKGUEfWJywShv9AoTJE8U80RqWZWZNeqB4DImsPEzTtfwxt_63U5D9Azs2ZoybXhd82jsYP68Z0eyCCySnFiqzDaPMg&lib=MCnBFScBMTtnncgp6aQSFgqjSmd3jpffu";
-        const STATS_API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLhtF4fKVgyGKXJ4gHExPWeTv1TKCRDnyym0J-dIaADv3qRswx2Ll9txKjMnh83T7I2pqZo5XlRS-2trFUEbbFzMkIEHGKqWPms2ne3gnjSXMhHU-pVVgvfwrFrWeulrmRAGwV6gpHbcB52Jk-qUbwam7JAlBUExCFES2WDwCkJ-zCpgIO80Zhnbv2GlIPa-DT5gPvQ4nL_PYYmZPTbEzI_fAW4OOwFfit43HD85n9WBxgyAoQKZq6hcATG230ksFy_dab2_6kwf14MUB4XR-l3-RHAlsg&lib=MeuVLgevlvBF3Dy5o0naf46jSmd3jpffu";
+        const { useState, useEffect, useMemo, useRef } = React;
 
         // --- Icons ---
-        const IconBook = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        const IconHeart = ({ size = 24, className = "", fill = "currentColor" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
         );
-        const IconShoppingBag = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        );
-        const IconX = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        );
-        const IconSearch = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        );
-        const IconCheck = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M20 6 9 17l-5-5"/></svg>
-        );
-        const IconExternalLink = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
-        );
-        const IconLock = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        );
-        const IconArrowRight = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-        );
-        const IconLoader = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-        );
-        const IconPlus = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-        );
-        const IconHeart = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-        );
-        const IconGift = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 12 20 22 4 22 4 12"/><rect width="20" height="5" x="2" y="7"/><line x1="12" x2="12" y1="22" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
-        );
-        const IconRefresh = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+        const IconBookHeart = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/><path d="M12 11.5a2.5 2.5 0 1 0-5 0c0 2.5 2.5 4.5 2.5 4.5s2.5-2 2.5-4.5Z"/></svg>
         );
 
         // --- Shelf Configuration ---
-        // NEW: Brighter, child-friendly "Crayon Box" Palette
         const BOOK_COLOURS = [
             'bg-rose-400', 'bg-rose-500', 
             'bg-sky-400', 'bg-sky-500', 
@@ -216,60 +158,96 @@
         ];
         const SPINE_PATTERNS = ['solid', 'striped-top', 'striped-bottom', 'label-mid'];
 
-        // --- Utilities ---
-        const getRandomColor = (id) => {
-            const colors = ["bg-emerald-700", "bg-pink-600", "bg-blue-600", "bg-orange-600", "bg-teal-600", "bg-indigo-600", "bg-amber-700", "bg-rose-600"];
-            // Simple string hash fallback if ID isn't numeric
-            const val = typeof id === 'number' ? id : 12;
-            return colors[val % colors.length];
-        };
-
         // --- Components ---
 
-        // NEW: Shelf Component
-        const BookShelfVisual = ({ percentage = 60 }) => {
+        // Floating Hearts Background Component
+        const FloatingHearts = () => {
+            // Pre-defined values
+            const heartConfigs = [
+                { left: '10%', delay: '0s', duration: '12s', size: 32, color: 'text-red-400', fill: 'rgba(248, 113, 113, 0.4)' },
+                { left: '25%', delay: '2s', duration: '15s', size: 24, color: 'text-pink-300', fill: 'rgba(244, 114, 182, 0.4)' },
+                { left: '40%', delay: '5s', duration: '11s', size: 48, color: 'text-red-500', fill: 'rgba(239, 68, 68, 0.3)' },
+                { left: '55%', delay: '1s', duration: '14s', size: 28, color: 'text-amber-300', fill: 'rgba(252, 211, 77, 0.4)' },
+                { left: '70%', delay: '4s', duration: '13s', size: 36, color: 'text-rose-400', fill: 'rgba(251, 113, 133, 0.4)' },
+                { left: '85%', delay: '7s', duration: '16s', size: 20, color: 'text-pink-400', fill: 'rgba(244, 114, 182, 0.5)' },
+                { left: '15%', delay: '8s', duration: '14s', size: 40, color: 'text-red-300', fill: 'rgba(252, 165, 165, 0.4)' },
+                { left: '35%', delay: '11s', duration: '12s', size: 22, color: 'text-rose-500', fill: 'rgba(244, 63, 94, 0.3)' },
+                { left: '65%', delay: '9s', duration: '15s', size: 30, color: 'text-pink-500', fill: 'rgba(236, 72, 153, 0.4)' },
+                { left: '80%', delay: '3s', duration: '11s', size: 44, color: 'text-amber-400', fill: 'rgba(251, 191, 36, 0.4)' },
+                { left: '5%', delay: '13s', duration: '17s', size: 26, color: 'text-red-400', fill: 'rgba(248, 113, 113, 0.4)' },
+                { left: '95%', delay: '6s', duration: '13s', size: 34, color: 'text-rose-300', fill: 'rgba(253, 164, 175, 0.4)' }
+            ];
+
+            return (
+                // Fixed positioning ensures hearts stay on screen without causing scrollbar issues
+                <div className="fixed inset-0 w-full h-full pointer-events-none z-10 overflow-hidden">
+                    {heartConfigs.map((config, i) => (
+                        <div 
+                            key={i} 
+                            className="floating-heart"
+                            style={{
+                                left: config.left,
+                                animationDelay: config.delay,
+                                animationDuration: config.duration
+                            }}
+                        >
+                            <IconHeart size={config.size} className={config.color} fill={config.fill} />
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+
+        // Full Bookshelf Component
+        const FullBookShelfVisual = () => {
             const TOTAL_BOOKS = 50;
-            const [displayPercentage, setDisplayPercentage] = useState(0); // Triggers visual book growth
-            const [countLabel, setCountLabel] = useState(0); // Triggers number counting
+            const [displayPercentage, setDisplayPercentage] = useState(0); 
+            const [countLabel, setCountLabel] = useState(0);
+            const shelfRef = useRef(null);
+            const [hasAnimated, setHasAnimated] = useState(false);
 
-            // Animate on mount or when percentage changes
+            // Animate to 100% ONLY when the shelf scrolls into view
             useEffect(() => {
-                // 1. Trigger the visual book growth
-                const timer = setTimeout(() => {
-                    setDisplayPercentage(percentage);
-                }, 1); 
+                const observer = new IntersectionObserver((entries) => {
+                    if (entries[0].isIntersecting && !hasAnimated) {
+                        setHasAnimated(true);
+                        
+                        // Small delay before growing books
+                        const timer = setTimeout(() => {
+                            setDisplayPercentage(100);
+                        }, 200); 
 
-                // 2. Animate the number counting up
-                let startTimestamp = null;
-                const duration = 800; // .8 seconds
-                
-                const step = (timestamp) => {
-                    if (!startTimestamp) startTimestamp = timestamp;
-                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                    
-                    // Easing function for numbers (easeOutQuad)
-                    const easeProgress = 1 - (1 - progress) * (1 - progress);
-                    
-                    // Don't let it exceed the target percentage
-                    const currentValue = Math.floor(easeProgress * percentage);
-                    setCountLabel(currentValue);
-                    
-                    if (progress < 1) {
+                        // Animate the number counting up
+                        let startTimestamp = null;
+                        const duration = 2500; // 2.5 seconds
+                        
+                        const step = (timestamp) => {
+                            if (!startTimestamp) startTimestamp = timestamp;
+                            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                            
+                            // Cubic ease out for smooth counting
+                            const easeProgress = 1 - Math.pow(1 - progress, 3);
+                            
+                            setCountLabel(Math.floor(easeProgress * 100));
+                            
+                            if (progress < 1) {
+                                window.requestAnimationFrame(step);
+                            } else {
+                                setCountLabel(100);
+                            }
+                        };
                         window.requestAnimationFrame(step);
-                    } else {
-                        setCountLabel(percentage); // Ensure final value is exact
-                    }
-                };
-                
-                const numberTimer = setTimeout(() => {
-                    window.requestAnimationFrame(step);
-                }, 1);
 
-                return () => {
-                    clearTimeout(timer);
-                    clearTimeout(numberTimer);
-                };
-            }, [percentage]);
+                        return () => clearTimeout(timer);
+                    }
+                }, { threshold: 0.2 }); // Triggers when 20% of the shelf is visible
+
+                if (shelfRef.current) {
+                    observer.observe(shelfRef.current);
+                }
+
+                return () => observer.disconnect();
+            }, [hasAnimated]);
 
             const shelfBooks = useMemo(() => {
                 return Array.from({ length: TOTAL_BOOKS }).map((_, i) => {
@@ -288,17 +266,18 @@
             const visibleBookCount = Math.round((displayPercentage / 100) * TOTAL_BOOKS);
 
             return (
-                <div className="w-full max-w-2xl mx-auto my-8 perspective-1000 animate-slide-up px-4">
+                <div ref={shelfRef} className="w-full max-w-3xl mx-auto mt-12 mb-12 perspective-1000 animate-slide-up px-4" style={{animationDelay: '0.4s', opacity: 0}}>
                     <div className="relative mb-2">
-                        {/* Floating Label - Now using countLabel */}
-                        <div className="absolute -top-6 right-0 bg-yellow-400 text-blue-900 text-xs font-bold px-3 py-1 rounded-full shadow-lg border-2 border-white animate-pulse-soft transform rotate-2 transition-all z-20">
-                            {countLabel}% Reached
+                        {/* 100% Complete Floating Label */}
+                        <div className="absolute -top-10 right-2 md:right-4 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 text-sm md:text-base font-black px-6 py-2 rounded-full glow-shadow border-2 border-white animate-pulse-soft transform rotate-2 z-20 flex items-center gap-2">
+                            <IconHeart size={18} fill="currentColor" className="text-rose-600" />
+                            {countLabel}% Stocked!
                         </div>
 
-                        {/* Shelf Structure (New: Light Pine/Birch Wood) - Note rounded-t only */}
-                        <div className="w-full h-24 md:h-40 bg-[#e8d5b5] relative rounded-t-sm shadow-xl flex items-end px-4">
+                        {/* Shelf Structure */}
+                        <div className="w-full h-28 md:h-48 bg-[#e8d5b5] relative rounded-t-sm shadow-xl flex items-end px-4 border-x border-t border-white/20">
                             
-                            {/* Wood Grain/Shadow Overlay - Lighter/Softer */}
+                            {/* Wood Grain/Shadow Overlay */}
                             <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-black/5 pointer-events-none rounded-t-sm"></div>
                             
                             {/* Back of shelf shadow */}
@@ -310,18 +289,16 @@
                                     <div
                                         key={book.id}
                                         className={`
-                                            relative transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom 
+                                            relative transition-all duration-[1500ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom 
                                             ${book.colour} shadow-sm group border-white/10 border-r border-l
                                         `}
                                         style={{
-                                            // Ensure they are rendered but hidden if not visible yet to allow transition
                                             height: index < visibleBookCount ? `${book.height}%` : '0%',
                                             opacity: index < visibleBookCount ? 1 : 0,
                                             flexGrow: book.width,
-                                            transform: `rotate(${book.tilt}deg) translateY(${index < visibleBookCount ? '0' : '10px'})`,
+                                            transform: `rotate(${book.tilt}deg) translateY(${index < visibleBookCount ? '0' : '20px'})`,
                                             marginRight: (index % 7 === 0) ? '1px' : '0px',
-                                            // Stagger effect: books grow one after another from left to right
-                                            transitionDelay: `${index * 10}ms` 
+                                            transitionDelay: `${index * 20}ms` 
                                         }}
                                     >
                                         {/* Spine Details */}
@@ -345,899 +322,183 @@
                             </div>
                         </div>
                         
-                        {/* The Ledge / Progress Bar (Split into two tones) */}
-                        <div className="w-full shadow-xl rounded-b-md overflow-hidden flex flex-col">
-                            {/* Tone 1: Top Ledge (Wood) - Slimmer */}
-                            <div className="h-2 md:h-3 bg-[#cbb593] relative z-10 border-b border-[#a89070]"></div>
+                        {/* The Ledge / Progress Bar */}
+                        <div className="w-full shadow-2xl rounded-b-lg overflow-hidden flex flex-col relative z-20">
+                            {/* Top Ledge (Wood) */}
+                            <div className="h-3 md:h-4 bg-[#cbb593] relative z-10 border-b border-[#a89070]"></div>
 
-                            {/* Tone 2: Bottom Bar (Progress) */}
-                            <div className="h-3 md:h-4 bg-[#5d4037] relative"> {/* Darker background for the empty bar */}
+                            {/* Bottom Bar (Progress - Full) */}
+                            <div className="h-4 md:h-6 bg-[#5d4037] relative">
                                 <div
-                                    className="h-full bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 shadow-[0_0_15px_rgba(251,191,36,0.4)] relative"
+                                    className="h-full bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 relative"
                                     style={{
                                         width: `${displayPercentage}%`,
-                                        transition: 'width 2s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                                        transition: 'width 2.5s cubic-bezier(0.34, 1.56, 0.64, 1)'
                                     }}
                                 >
-                                     <div className="absolute top-0 bottom-0 right-0 w-1 bg-white/50 blur-[1px]"></div>
+                                    {/* Glowing effect on the full bar */}
+                                    <div className="absolute inset-0 bg-white/30 animate-pulse-soft"></div>
+                                    <div className="absolute top-0 bottom-0 right-0 w-2 bg-white/80 blur-[2px]"></div>
                                 </div>
                             </div>
                         </div>
-
-                        {/* Increments under the bar */}
+                        
+                        {/* Progress Increments under the bar */}
                         <div className="flex justify-between mt-2 text-[10px] sm:text-xs font-serif font-bold text-blue-200/80 px-1">
                             <span>0%</span>
                             <span>25%</span>
                             <span>50%</span>
                             <span>75%</span>
-                            <span>Target: 100%</span>
+                            <span className="text-white">100%</span>
                         </div>
                     </div>
                 </div>
             );
         };
 
-        const ProductCard = ({ item, onQuickAdd, onViewDetails }) => {
-          const isSponsored = item.sponsored;
-          const hasImage = item.image && item.image.length > 5;
-          const fallbackColor = getRandomColor(item.id);
-
-          return (
-            <div 
-                onClick={() => onViewDetails(item)}
-                className={`group relative glass-card p-5 rounded-2xl transition-all duration-300 hover:shadow-premium ${!isSponsored && 'hover:scale-105 cursor-pointer'} flex flex-col h-full`}
-            >
-              
-              {/* Image Area */}
-              <div className="mb-4 relative w-full aspect-[3/4] flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl overflow-hidden">
-                  <div className={`w-3/4 h-5/6 ${hasImage ? 'bg-white' : fallbackColor} rounded-r-md rounded-l-sm shadow-xl relative flex flex-col transition-transform duration-500 ${!isSponsored && 'group-hover:scale-110 group-hover:rotate-2'}`}>
-                    
-                    {/* Spine Effect */}
-                    <div className="absolute left-0 top-0 bottom-0 w-2 bg-black/10 z-10 pointer-events-none"></div>
-                    
-                    {hasImage ? (
-                         <img src={item.image} alt={item.title} className="w-full h-full object-cover rounded-r-md" />
-                    ) : (
-                        <div className="border-2 border-white/30 h-full flex flex-col justify-between text-center p-2">
-                            <div className="text-white font-serif text-sm leading-tight font-bold drop-shadow-lg break-words">{item.title}</div>
-                        </div>
-                    )}
-                  </div>
-                  
-                  {isSponsored && (
-                    <div className="absolute inset-0 glass flex items-center justify-center">
-                      <div className="bg-gradient-to-r from-slate-800 to-slate-900 text-white px-4 py-2 text-xs font-bold uppercase tracking-widest transform -rotate-12 border-2 border-white shadow-lg">
-                        Sponsored
-                      </div>
-                    </div>
-                  )}
-              </div>
-
-              {/* Details */}
-              <div className="text-center space-y-2 mt-auto">
-                <div className="inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 truncate max-w-full">
-                  {item.author}
-                </div>
-
-                <h3 className="font-serif font-bold text-slate-900 leading-tight line-clamp-2 min-h-[2.5em] text-sm sm:text-base pt-1">
-                  {item.title}
-                </h3>
-                
-                {item.synopsis && (
-                    <p className="text-xs text-slate-500 line-clamp-2 h-8">{item.synopsis}</p>
-                )}
-                
-                <div className="pt-3 flex flex-col sm:flex-row items-center justify-between mt-2 gap-4">
-                  <span className="font-bold gradient-text text-xl">€{item.price.toFixed(2)}</span>
-                  <button 
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        !isSponsored && onQuickAdd(item);
-                    }}
-                    disabled={isSponsored}
-                    className={`w-full sm:w-auto text-xs font-bold px-5 py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 ${
-                      isSponsored 
-                      ? "glass text-slate-400 cursor-not-allowed"
-                      : "bg-gradient-to-r from-blue-800 to-blue-600 text-white hover:shadow-lg hover:scale-105 shadow-premium hover:bg-blue-700"
-                    }`}
-                  >
-                    {isSponsored ? 'Taken' : 'Select'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        };
-
-        const BookDetailModal = ({ book, isOpen, onClose, onAddToRegistry }) => {
-            if (!isOpen || !book) return null;
-
-            const isSponsored = book.sponsored;
-            const hasImage = book.image && book.image.length > 5;
-            const fallbackColor = getRandomColor(book.id);
-
-            return (
-                <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-6">
-                    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose}></div>
-                    
-                    {/* Modal Content */}
-                    <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh] animate-scale-up">
-                        
-                        {/* Close Button Mobile (Absolute) */}
-                        <button onClick={onClose} className="absolute top-4 right-4 z-20 bg-black/20 hover:bg-black/40 text-white p-2 rounded-full md:hidden backdrop-blur-md transition-colors">
-                            <IconX size={20} />
-                        </button>
-
-                        {/* Image Section (Top on mobile, Left on desktop) */}
-                        <div className="w-full md:w-5/12 h-64 md:h-auto bg-slate-50 relative flex items-center justify-center p-8 shrink-0 border-b md:border-b-0 md:border-r border-slate-100">
-                             {/* Background blur effect for image context */}
-                            {hasImage && (
-                                <div className="absolute inset-0 opacity-10 blur-xl scale-110" style={{ backgroundImage: `url(${book.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }}></div>
-                            )}
-
-                            <div className={`w-36 md:w-48 aspect-[2/3] ${hasImage ? 'bg-white' : fallbackColor} rounded-r-md rounded-l-sm shadow-2xl relative flex flex-col transform md:hover:scale-105 transition-transform duration-500`}>
-                                {/* Spine */}
-                                <div className="absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-r from-black/20 to-transparent z-10 pointer-events-none rounded-l-sm"></div>
-                                
-                                {hasImage ? (
-                                    <img src={book.image} alt={book.title} className="w-full h-full object-cover rounded-r-md" />
-                                ) : (
-                                    <div className="border-2 border-white/30 h-full flex flex-col justify-center text-center p-4">
-                                        <div className="text-white font-serif text-lg leading-tight font-bold drop-shadow-lg break-words">{book.title}</div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Info Section */}
-                        <div className="w-full md:w-7/12 p-6 md:p-10 overflow-y-auto flex flex-col bg-white">
-                        
-                        {/* Header with Desktop Close Button */}
-                        <div className="flex justify-between items-start mb-2">
-                            <div className="pr-8">
-                                <div className="text-xs font-bold uppercase tracking-widest text-blue-600 mb-2 flex items-center gap-2">
-                                    <span className="w-8 h-0.5 bg-blue-600 rounded-full"></span>
-                                    {book.author}
-                                </div>
-                                <h2 className="text-2xl md:text-4xl font-serif font-bold text-slate-900 leading-tight mb-2">{book.title}</h2>
-                            </div>
-                            <button onClick={onClose} className="hidden md:block text-slate-300 hover:text-slate-600 transition-colors p-2 -mr-2 -mt-2">
-                                <IconX size={28} />
-                            </button>
-                        </div>
-                        
-                        {/* Price Tag */}
-                        <div className="inline-block self-start bg-blue-50 text-blue-700 px-4 py-1.5 rounded-lg font-bold text-xl mb-6 border border-blue-100">
-                            €{book.price.toFixed(2)}
-                        </div>
-                        
-                        {/* Description */}
-                        <div className="prose prose-slate prose-lg flex-1 mb-8 overflow-y-auto pr-2 custom-scrollbar">
-                            <h4 className="text-sm font-bold uppercase text-slate-400 tracking-wider mb-2">Synopsis</h4>
-                            <p className="text-slate-600 leading-relaxed">
-                                {book.synopsis || "No description available for this title."}
-                            </p>
-                        </div>
-                        
-                        {/* Action Footer */}
-                        <div className="mt-auto pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-4 items-center justify-between">
-                            <div className="text-xs text-slate-400 font-medium hidden sm:block">
-                                *Proceeds support the school library
-                            </div>
-                            <button 
-                                onClick={() => {
-                                    if(!isSponsored) {
-                                        onAddToRegistry(book);
-                                        onClose();
-                                    }
-                                }}
-                                disabled={isSponsored}
-                                className={`w-full sm:w-auto py-3 px-8 rounded-xl font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2 ${
-                                    isSponsored 
-                                    ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
-                                    : "bg-gradient-to-r from-blue-700 to-blue-500 text-white hover:scale-105 hover:shadow-blue-500/25"
-                                }`}
-                                >
-                                {isSponsored ? (
-                                    <span>Already Sponsored</span>
-                                ) : (
-                                    <>
-                                    <span>Select Book</span>
-                                    <IconPlus size={20} />
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        const Notification = ({ message, show, onClose }) => {
-          if (!show) return null;
-          return (
-            <div className="fixed bottom-6 right-6 glass-strong px-6 py-4 rounded-2xl shadow-premium flex items-center gap-3 z-50 animate-slide-up border-2 border-blue-400">
-              <div className="bg-gradient-to-r from-blue-700 to-blue-500 text-white rounded-full p-2">
-                <IconCheck size={16} />
-              </div>
-              <div>
-                <h4 className="font-serif font-bold gradient-text">Registry Updated</h4>
-                <p className="text-sm text-slate-600">{message}</p>
-              </div>
-              <button onClick={onClose} className="ml-4 text-slate-400 hover:text-slate-900">
-                <IconX size={16} />
-              </button>
-            </div>
-          );
-        };
-
-        const Modal = ({ isOpen, onClose, children }) => {
-          if (!isOpen) return null;
-          return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={onClose}></div>
-              <div className="relative glass-strong rounded-3xl shadow-premium w-full max-w-lg overflow-hidden animate-scale-up border-2 border-white/50">
-                {children}
-              </div>
-            </div>
-          );
-        };
-
-        // --- New Donation Modal ---
-        const DonationModal = ({ isOpen, onClose, onAddDonation }) => {
-            if (!isOpen) return null;
-            
-            const options = [5, 10, 20, 50, 75, 100, 150, 250, 500];
-
-            return (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-                     <div className="absolute inset-0 bg-slate-900/70 backdrop-blur-md" onClick={onClose}></div>
-                     <div className="relative glass-strong rounded-3xl shadow-2xl w-full max-w-md p-6 animate-scale-up border border-white/50 text-center">
-                        <button onClick={onClose} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors">
-                            <IconX size={24} />
-                        </button>
-
-                        <div className="inline-block p-4 rounded-full bg-amber-100 mb-4 border border-amber-200">
-                            <IconGift size={32} className="text-amber-600" />
-                        </div>
-
-                        <h3 className="text-2xl font-bold font-serif mb-2 text-slate-900">Support Our Library</h3>
-                        <p className="text-slate-600 mb-6">Choose a donation amount to add to your cart.</p>
-
-                        <div className="grid grid-cols-3 gap-3 mb-8">
-                            {options.map((amount) => (
-                                <button
-                                    key={amount}
-                                    onClick={() => onAddDonation(amount)}
-                                    className="group relative overflow-hidden py-3 px-4 rounded-xl border-2 border-slate-200 hover:border-amber-400 hover:bg-amber-50 transition-all"
-                                >
-                                    <span className="font-bold text-xl text-slate-700 group-hover:text-amber-700">€{amount}</span>
-                                </button>
-                            ))}
-                        </div>
-                     </div>
-                </div>
-            );
-        };
-
-        // --- Checkout Modal with Iframe ---
-        const CheckoutModal = ({ isOpen, onClose, cartTotal, bookString, donorName, donationAmount }) => {
-            if (!isOpen) return null;
-            
-            // Construct URL: include addDonation param if a donation exists
-            let formUrl = `https://form.jotform.com/260355679497070?total=${cartTotal}&books=${encodeURIComponent(bookString)}&q2_fullname0=${encodeURIComponent(donorName)}`;
-            
-            if (donationAmount > 0) {
-                formUrl += `&addDonation=${donationAmount}`;
-            }
-
-            return (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-0 sm:p-4">
-                    <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-md" onClick={onClose}></div>
-                    <div className="relative w-full h-full sm:h-[90vh] sm:w-[95vw] max-w-4xl bg-white rounded-none sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-scale-up">
-                        <div className="flex justify-between items-center p-4 bg-gradient-to-r from-blue-800 to-blue-600 text-white shrink-0">
-                            <h3 className="text-lg font-bold font-serif flex items-center gap-2">
-                                <IconLock size={18} /> Secure Checkout
-                            </h3>
-                            <button onClick={onClose} className="hover:bg-white/20 p-2 rounded-full transition-colors">
-                                <IconX size={24} />
-                            </button>
-                        </div>
-                        <div className="flex-1 bg-white relative">
-                            <iframe 
-                                src={formUrl}
-                                title="Checkout Form"
-                                className="w-full h-full border-0"
-                                allow="payment"
-                            ></iframe>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
 
         // --- Main App ---
 
         function App() {
-          const [inventory, setInventory] = useState([]);
-          const [loading, setLoading] = useState(true);
-          const [verifying, setVerifying] = useState(false); // New state for checkout verification
-          const [error, setError] = useState(null);
-          
-          // New: Stats State
-          const [shelfStats, setShelfStats] = useState({ total: 0, sold: 0, percentage: 0 });
-
-          const [cart, setCart] = useState([]);
-          const [isCartOpen, setIsCartOpen] = useState(false);
-          const [searchQuery, setSearchQuery] = useState("");
-          
-          // Modals
-          const [showSuccessModal, setShowSuccessModal] = useState(false);
-          const [lastAddedItem, setLastAddedItem] = useState(null);
-          const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-          const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
-          const [viewingBook, setViewingBook] = useState(null);
-          
-          const [donorName, setDonorName] = useState("");
-          const [notification, setNotification] = useState(null);
-
-          // Fetch Data (Books and Stats)
-          useEffect(() => {
-            const fetchBooks = async () => {
-                try {
-                    // Added cache busting via &t=${Date.now()}
-                    const response = await fetch(`${BOOKS_API_URL}&t=${Date.now()}`);
-                    const data = await response.json();
-                    
-                    // Map raw JSON to internal format
-                    const mappedData = data.map((item, index) => {
-                        let price = 0;
-                        if (typeof item.price === 'number') price = item.price;
-                        else if (typeof item.price === 'string') price = parseFloat(item.price.replace(/[^0-9.]/g, ''));
-                        
-                        return {
-                            id: index + 1000, 
-                            title: item.title || "Untitled",
-                            author: item.author || "Unknown",
-                            price: price || 0,
-                            synopsis: item.synopsis || "",
-                            image: item.image || "",
-                            sponsored: false 
-                        };
-                    });
-                    setInventory(mappedData);
-                } catch (err) {
-                    console.error("Error fetching books:", err);
-                    setError("Unable to load book list. Please try again later.");
-                }
-            };
-
-            const fetchStats = async () => {
-                try {
-                    // Added cache busting
-                    const response = await fetch(`${STATS_API_URL}&t=${Date.now()}`);
-                    const data = await response.json();
-                    
-                    let pct = 0;
-                    if (data.total > 0) {
-                        pct = Math.round((data.sold / data.total) * 100);
-                    }
-                    
-                    setShelfStats({
-                        total: data.total || 0,
-                        sold: data.sold || 0,
-                        percentage: pct
-                    });
-                } catch (err) {
-                    console.error("Error fetching stats:", err);
-                }
-            };
-
-            Promise.all([fetchBooks(), fetchStats()]).then(() => {
-                setLoading(false);
-            });
-            
-          }, []);
-
-          // NEW: Function to verify cart before checkout
-          const verifyAndCheckout = async () => {
-              setVerifying(true); // Show loading state on button
-              
-              try {
-                  // 1. Fetch latest data (Fresh)
-                  const response = await fetch(`${BOOKS_API_URL}&t=${Date.now()}`);
-                  const freshData = await response.json();
-                  
-                  // 2. Identify items in cart that are now taken
-                  const takenItems = [];
-                  const newCart = cart.filter(cartItem => {
-                      if (cartItem.id === 'donation') return true; // Donations always safe
-                      
-                      // Find matching book in fresh data by Title & Author (more robust than ID if sheet rows change)
-                      const freshBook = freshData.find(b => 
-                          (b.title || "").trim() === cartItem.title && 
-                          (b.author || "").trim() === cartItem.author
-                      );
-                      
-                      // Note: Assuming your API returns "sponsored": true/false in the JSON, or removes the row?
-                      // If the book is MISSING from the feed (because it's sold and filtered out by App Script), we consider it taken.
-                      // If the book is PRESENT but marked sponsored (if your script does that), we check that property.
-                      
-                      // Logic: If we can't find it in the fresh list, or we find it and it's invalid
-                      if (!freshBook) {
-                           // If script filters sold items out completely
-                           takenItems.push(cartItem.title);
-                           return false; 
-                      }
-                      
-                      // If script returns everything but marks sponsored
-                      if (freshBook.sponsored === true) {
-                          takenItems.push(cartItem.title);
-                          return false;
-                      }
-                      
-                      return true;
-                  });
-
-                  // 3. Handle conflict
-                  if (takenItems.length > 0) {
-                      setCart(newCart);
-                      // Update main view too so they see the changes
-                      const mappedFreshData = freshData.map((item, index) => ({
-                           // Simplified mapping for update
-                           id: index + 1000,
-                           title: item.title,
-                           author: item.author,
-                           price: typeof item.price === 'number' ? item.price : parseFloat(item.price),
-                           synopsis: item.synopsis,
-                           image: item.image,
-                           sponsored: item.sponsored || false
-                      }));
-                      setInventory(mappedFreshData);
-                      
-                      setNotification(`Sorry! These items were just taken: ${takenItems.join(", ")}`);
-                      // Do not open checkout
-                  } else {
-                      // 4. Success - proceed
-                      setIsCartOpen(false);
-                      setShowSuccessModal(false);
-                      setIsCheckoutOpen(true);
-                  }
-                  
-              } catch (err) {
-                  console.error("Verification failed", err);
-                  setNotification("Connection error. Please try again.");
-              } finally {
-                  setVerifying(false);
-              }
-          };
-
-          const filteredItems = inventory.filter(item => {
-            const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                                  item.author.toLowerCase().includes(searchQuery.toLowerCase());
-            return matchesSearch;
-          });
-
-          const cartTotal = cart.reduce((sum, item) => sum + item.price, 0);
-          
-          const donationItem = cart.find(item => item.id === 'donation');
-          const donationAmount = donationItem ? donationItem.price : 0;
-
-          const addToCart = (item) => {
-            if (!item) return;
-            const existingItem = cart.find(c => c.id === item.id);
-            if (existingItem && item.id !== 'donation') {
-                setNotification("This item is already in your selection.");
-                setTimeout(() => setNotification(null), 3000);
-                return;
-            }
-            let newCart = [...cart];
-            if (item.id === 'donation') {
-                newCart = newCart.filter(c => c.id !== 'donation');
-            }
-            const newItem = {
-              ...item,
-              cartId: item.id === 'donation' ? 'donation-cart-id' : Date.now(),
-              details: 'Registry Item'
-            };
-            setCart([...newCart, newItem]);
-            setLastAddedItem(newItem);
-            setShowSuccessModal(true);
-            setIsDonationModalOpen(false); 
-          };
-
-          const handleAddDonation = (amount) => {
-              const donationItem = {
-                  id: 'donation',
-                  title: 'General Donation',
-                  author: 'Scoil Íosagáin Library',
-                  price: amount,
-                  image: '', 
-                  sponsored: false
-              };
-              addToCart(donationItem);
-          };
-
-          const handleContinueBrowsing = () => {
-             setShowSuccessModal(false);
-             setLastAddedItem(null);
-          };
-
-          const removeFromCart = (cartId) => {
-            setCart(cart.filter(item => item.cartId !== cartId));
-          };
-
-          const bookString = cart.map(item => item.title).join(" | ");
-
           return (
-            <div className="min-h-screen font-sans text-slate-800 relative overflow-hidden flex flex-col">
+            <div className="min-h-screen font-sans text-slate-800 relative flex flex-col bg-brand-gradient">
               
-              {/* --- Header / Hero Section (Blue Background) --- */}
-              <div className="bg-brand-gradient relative overflow-hidden pb-16">
-                  
-                  {/* Floating orbs */}
-                  <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="orb w-96 h-96 bg-blue-700 absolute -top-20 -left-20" style={{animationDelay: '0s'}}></div>
-                    <div className="orb w-80 h-80 bg-blue-500 absolute top-1/3 -right-20" style={{animationDelay: '2s'}}></div>
-                  </div>
-
-                  {/* --- Top Bar --- */}
-                  <div className="glass-dark text-white text-xs py-3 px-4 relative z-30 border-b-0">
-                    <div className="max-w-7xl mx-auto flex justify-between items-center">
-                      <div className="flex gap-4">
-                          <span className="flex items-center gap-1.5"><span>📍</span> Farranree, Cork</span>
-                          <span className="hidden sm:flex items-center gap-1.5"><span>📞</span> 021 430 3302</span>
-                      </div>
-                      <div className="flex gap-4">
-                        <span className="text-amber-300 font-bold flex items-center gap-1.5">
-                          Academic Year 2026/2027
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* --- Header --- */}
-                  <header className="glass-dark text-white shadow-none sticky top-0 z-40 relative border-t border-white/10">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                      <div className="flex justify-between items-center h-24 md:h-32">
-                        
-                        {/* Logo & Title */}
-                        <div className="flex items-center gap-4 group cursor-pointer" onClick={() => window.scrollTo(0,0)}>
-                          <div className="w-16 h-16 md:w-28 md:h-28 rounded-full glass-strong overflow-hidden flex items-center justify-center shadow-premium transition-transform group-hover:scale-110 border-4 border-amber-400 animate-float">
-                            <img 
-                              src="https://storage.googleapis.com/siteassetsswd/839/default/20250728102007_24_default.jpg" 
-                              alt="Scoil Íosagáin Logo" 
-                              className="w-12 h-12 md:w-24 md:h-24 object-contain"
-                            />
-                          </div>
-                          <div>
-                            <h1 className="text-2xl md:text-4xl font-bold tracking-wide">Scoil Íosagáin</h1>
-                            <p className="text-amber-300 text-xs md:text-sm font-bold uppercase tracking-[0.3em]">Book Registry</p>
-                          </div>
-                        </div>
-                        
-                        {/* Basket Trigger */}
-                        <button 
-                          onClick={() => setIsCartOpen(true)}
-                          className="relative p-4 rounded-2xl glass hover:glass-strong transition-all group"
-                        >
-                          <IconShoppingBag className="w-6 h-6 text-white group-hover:text-amber-300 transition-colors" />
-                          {cart.length > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 text-[10px] font-bold w-6 h-6 flex items-center justify-center rounded-full shadow-lg animate-bounce border-2 border-white">
-                              {cart.length}
-                            </span>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  </header>
-
-                  {/* --- Hero Banner --- */}
-                  <div className="relative py-12 px-4 text-center">
-                    <div className="relative z-10 max-w-3xl mx-auto">
-                      
-                      <h2 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white mb-4 font-serif">
-                        Sponsor a Book
-                      </h2>
-                      <p className="text-amber-300 text-2xl font-bold italic font-serif mb-6">
-                        ~ A Small Gift, A Love of Reading for Life ~
-                      </p>
-                      
-                      {/* NEW: Shelf Visualization (Dynamic Percentage) */}
-                      <BookShelfVisual percentage={shelfStats.percentage} />
-
-                      {/* General Donation Button */}
-                      <div className="mt-8 flex flex-col items-center animate-slide-up" style={{animationDelay: '0.2s'}}>
-                        <button
-                            onClick={() => setIsDonationModalOpen(true)}
-                            className="group relative px-8 py-4 bg-gradient-to-r from-amber-400 to-yellow-500 text-blue-950 font-black text-lg rounded-full shadow-[0_0_30px_rgba(251,191,36,0.3)] hover:shadow-[0_0_40px_rgba(251,191,36,0.5)] hover:scale-105 transition-all duration-300 flex items-center gap-3 border-2 border-white/30"
-                        >
-                            <span className="uppercase tracking-widest text-sm sm:text-base">Make a General Donation</span>
-                            <IconHeart className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 fill-red-600/20 group-hover:scale-110 transition-transform duration-300 animate-pulse-soft" />
-                        </button>
-                        <p className="mt-3 text-blue-200 text-xs sm:text-sm font-medium opacity-80">
-                            Support the library directly
-                        </p>
-                      </div>
-
-                    </div>
-                  </div>
+              {/* Background Orbs (Fixed so they don't scroll away and leave the bottom blank) */}
+              <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+                <div className="orb w-[500px] h-[500px] bg-blue-700 absolute -top-40 -left-20" style={{animationDelay: '0s'}}></div>
+                <div className="orb w-[400px] h-[400px] bg-indigo-500 absolute top-1/3 -right-20" style={{animationDelay: '2s'}}></div>
+                <div className="orb w-[600px] h-[600px] bg-blue-600 absolute -bottom-40 left-1/4" style={{animationDelay: '4s'}}></div>
               </div>
 
-              {/* --- Main Content (White Background) --- */}
-              <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10 flex-grow -mt-8">
-                
-                {/* Search & Filter */}
-                <div className="flex flex-col items-center gap-4 mb-12">
-                  <div className="relative w-full max-w-2xl">
-                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">
-                        <IconSearch size={22} />
-                    </div>
-                    <input 
-                      type="text" 
-                      placeholder="Find a specific title or author..." 
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-14 pr-12 py-4 rounded-2xl bg-white border border-slate-200 shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-400/50 transition-all font-serif text-lg"
-                    />
-                    {searchQuery && (
-                        <button 
-                            onClick={() => setSearchQuery("")}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-full p-1 transition-colors"
-                        >
-                            <IconX size={18} />
-                        </button>
-                    )}
+              {/* Magical Floating Hearts */}
+              <FloatingHearts />
+
+              {/* --- Top Bar --- */}
+              <div className="glass-dark text-white text-xs py-3 px-4 relative z-30 border-b border-white/10">
+                <div className="max-w-7xl mx-auto flex justify-between items-center">
+                  <div className="flex gap-4">
+                      <span className="flex items-center gap-1.5"><span>📍</span> Farranree, Cork</span>
+                      <span className="hidden sm:flex items-center gap-1.5"><span>📞</span> 021 430 3302</span>
+                  </div>
+                  <div className="flex gap-4">
+                    <span className="text-amber-300 font-bold flex items-center gap-1.5">
+                      
+                    </span>
                   </div>
                 </div>
+              </div>
 
-                {/* Grid */}
-                {loading ? (
-                    <div className="flex flex-col items-center justify-center py-24 space-y-4">
-                        <div className="animate-spin-slow text-blue-600">
-                            <IconLoader size={48} />
-                        </div>
-                        <p className="text-xl font-serif text-slate-500">Loading Library...</p>
-                    </div>
-                ) : error ? (
-                    <div className="text-center py-12 bg-red-50 rounded-xl border border-red-200">
-                        <p className="text-red-600 font-bold">{error}</p>
-                    </div>
-                ) : filteredItems.length > 0 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {filteredItems.map(item => (
-                      <ProductCard 
-                        key={item.id} 
-                        item={item} 
-                        onQuickAdd={addToCart} 
-                        onViewDetails={(item) => setViewingBook(item)}
+              {/* --- Header --- */}
+              <header className="relative z-40 w-full pt-6 pb-2">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div className="flex flex-col items-center text-center gap-4">
+                    {/* Logo */}
+                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-full glass-strong overflow-hidden flex items-center justify-center shadow-premium border-4 border-amber-400 animate-float">
+                      <img 
+                        src="https://storage.googleapis.com/siteassetsswd/839/default/20250728102007_24_default.jpg" 
+                        alt="Scoil Íosagáin Logo" 
+                        className="w-20 h-20 md:w-28 md:h-28 object-contain"
                       />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-24 glass-strong rounded-3xl border-2 border-dashed border-slate-300 bg-white">
-                    <div className="inline-block p-6 rounded-full bg-slate-100 mb-6">
-                      <IconBook size={48} className="text-slate-400" />
                     </div>
-                    <h3 className="text-2xl font-bold text-slate-900 font-serif">No items found</h3>
-                    <p className="text-slate-500 mt-2">Try adjusting your search or filter.</p>
+                    <div className="text-white animate-slide-up" style={{animationDelay: '0.1s', opacity: 0}}>
+                      <h1 className="text-3xl md:text-5xl font-bold tracking-wide font-serif drop-shadow-lg">Scoil Íosagáin</h1>
+                      <p className="text-amber-300 text-sm md:text-base font-bold uppercase tracking-[0.3em] mt-2">Library Book Registry</p>
+                    </div>
                   </div>
-                )}
+                </div>
+              </header>
+
+              {/* --- Main "Thank You" Content --- */}
+              <main className="flex-grow flex flex-col items-center justify-center relative z-20 px-4 py-8">
+                
+                {/* Central Glass Card */}
+                <div className="w-full max-w-4xl glass-strong rounded-3xl shadow-premium p-8 md:p-14 text-center relative overflow-hidden animate-slide-up border border-white/50" style={{animationDelay: '0.2s', opacity: 0}}>
+                    
+                    {/* Decorative Top Banner */}
+                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-rose-400 via-amber-400 to-rose-400"></div>
+
+                    {/* Icon Graphic */}
+                    <div className="flex justify-center mb-8 relative">
+                        {/* Main central icon */}
+                        <div className="relative z-10 bg-gradient-to-br from-rose-50 to-pink-100 p-6 rounded-full shadow-inner border border-rose-200">
+                            <IconBookHeart size={64} className="text-rose-500 animate-pulse-soft" />
+                        </div>
+                        
+                        {/* Hearts around the icon (Brought to the front) */}
+                        <div className="absolute top-[-10px] right-[30%] text-rose-400 animate-float z-20" style={{animationDelay: '1s'}}>
+                             <IconHeart size={28} fill="currentColor" />
+                        </div>
+                        <div className="absolute bottom-[-5px] left-[30%] text-pink-400 animate-float z-20" style={{animationDelay: '2s'}}>
+                             <IconHeart size={22} fill="currentColor" />
+                        </div>
+                    </div>
+
+                    <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold font-serif gradient-text mb-4 leading-tight">
+                        Thank You!
+                    </h2>
+                    
+                    <h3 className="text-xl md:text-2xl font-bold text-slate-700 mb-8 font-serif">
+                        Every single book has been sponsored.
+                    </h3>
+
+                    <div className="max-w-2xl mx-auto space-y-6 text-slate-600 text-lg md:text-xl leading-relaxed">
+                        <p>
+                            We are absolutely overwhelmed by the incredible generosity of our school community. Because of your wonderful donations, the Scoil Íosagáin library is now stocked with beautiful new stories and educational adventures.
+                        </p>
+                        <p className="font-medium text-blue-900 bg-blue-50 py-4 px-6 rounded-2xl border border-blue-100">
+                            The book registry is officially closed. From the bottom of our hearts, thank you for sharing the magic of reading with our students.
+                        </p>
+                    </div>
+
+                </div>
+
+                {/* 100% Full Bookshelf Visual (Animates on Scroll) */}
+                <FullBookShelfVisual />
+
               </main>
 
               {/* --- Footer & Contact --- */}
-              <footer className="bg-[#2563eb] border-t border-[#FFD700] pt-12 pb-8 text-blue-100 text-sm relative z-10">
+              <footer className="glass-dark border-t border-white/20 pt-10 pb-8 text-blue-100 text-sm relative z-30 mt-auto w-full">
                 <div className="max-w-7xl mx-auto px-4">
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-center md:text-left mb-12">
+                  <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-6 mb-8">
                     
-                    {/* Column 1: Address & Main Contact */}
+                    {/* Address & Main Contact */}
                     <div>
-                      <h4 className="text-[#FFD700] font-bold uppercase tracking-widest mb-4 flex items-center justify-center md:justify-start gap-2">
-                         <span className="text-xl">📍</span> Scoil Íosagáin
+                      <h4 className="text-amber-300 font-bold uppercase tracking-widest mb-3 flex items-center justify-center md:justify-start gap-2">
+                         <span className="text-lg">📍</span> Scoil Íosagáin
                       </h4>
-                      <p className="leading-relaxed mb-4 text-white">
-                        Knockpogue Avenue<br/>
-                        Farranree, Cork
+                      <p className="leading-relaxed mb-3 text-white/90">
+                        Knockpogue Avenue, Farranree, Cork
                       </p>
-                      <div className="space-y-2">
-                        <p className="flex items-center justify-center md:justify-start gap-2">
-                           <span className="text-[#FFD700]">Phone:</span> 
+                      <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                        <p className="flex items-center gap-2">
+                           <span className="text-amber-300">Phone:</span> 
                            <a href="tel:0214303302" className="hover:text-white transition-colors">021 430 3302</a>
                         </p>
-                        <p className="flex items-center justify-center md:justify-start gap-2">
-                           <span className="text-[#FFD700]">Fax:</span> (021) 4303334
+                        <p className="flex items-center gap-2 hidden sm:flex">
+                           <span className="text-white/30">|</span>
+                        </p>
+                        <p className="flex items-center gap-2">
+                           <span className="text-amber-300">Fax:</span> (021) 430 3334
                         </p>
                       </div>
                     </div>
                     
-                    {/* Column 2: Registry & Secure Payment */}
-                    <div>
-                       <h4 className="text-[#FFD700] font-bold uppercase tracking-widest mb-4 flex items-center justify-center md:justify-start gap-2">
-                          <IconLock size={18} /> Registry & Security
-                       </h4>
-                       <p className="leading-relaxed mb-4">
-                         Books are removed from the list automatically once sponsored.
-                         <br/>
-                         <span className="text-xs text-blue-200 mt-2 block">Questions? Contact the office.</span>
-                       </p>
-                       <div className="bg-[#1e40af] p-4 rounded-lg border border-blue-400/30 inline-block md:block">
-                          <p className="text-xs text-blue-200 mb-2">Secure Payment Gateway</p>
-                          <div className="flex items-center justify-center md:justify-start gap-2 text-white">
-                             <IconLock size={16} className="text-emerald-400" />
-                             <span className="font-bold">256-bit SSL Encrypted</span>
-                          </div>
-                          <p className="text-[10px] text-blue-300 mt-1">Processed via JotForm & Stripe</p>
-                       </div>
+                    {/* Small Thank You Note */}
+                    <div className="bg-white/5 px-6 py-4 rounded-xl border border-white/10 max-w-xs">
+                        <p className="text-white text-center font-serif italic">
+                            "A book is a gift you can open again and again."
+                        </p>
                     </div>
 
                   </div>
 
                   {/* Copyright */}
-                  <div className="pt-8 border-t border-blue-700 text-center text-xs text-blue-300">
-                    &copy; 2026 Scoil Íosagáin. All rights reserved.
+                  <div className="pt-6 border-t border-white/10 text-center text-xs text-blue-200/60">
+                    &copy; 2026 Scoil Íosagáin. All rights reserved. Thank you for your support.
                   </div>
                 </div>
               </footer>
-
-              {/* --- Cart Sidebar --- */}
-              {isCartOpen && (
-                <>
-                  <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 transition-opacity" onClick={() => setIsCartOpen(false)} />
-                  <div className="fixed inset-y-0 right-0 w-full max-w-md glass-strong shadow-premium z-50 transform transition-transform animate-slide-left flex flex-col border-l-2 border-white/30">
-                    <div className="p-6 border-b border-white/20 flex justify-between items-center bg-gradient-to-r from-blue-800 to-blue-600 text-white">
-                      <h2 className="text-2xl font-bold font-serif">Your Selection</h2>
-                      <button onClick={() => setIsCartOpen(false)} className="text-blue-100 hover:text-white transition-colors">
-                        <IconX size={28} />
-                      </button>
-                    </div>
-                    
-                    <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                      {cart.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-full text-slate-400 space-y-6">
-                          <IconShoppingBag size={64} className="opacity-20" />
-                          <p className="text-lg">No items selected.</p>
-                          <button onClick={() => setIsCartOpen(false)} className="gradient-text font-bold text-lg underline underline-offset-4 decoration-amber-400">
-                            View Registry
-                          </button>
-                        </div>
-                      ) : (
-                        cart.map(item => (
-                          <div key={item.cartId} className="flex gap-4 p-5 glass-card rounded-xl shadow-lg border border-white/40">
-                            <div className="w-14 h-20 shrink-0 bg-slate-100 rounded flex items-center justify-center text-white shadow-lg overflow-hidden">
-                               {item.id === 'donation' ? (
-                                   <div className="w-full h-full bg-amber-100 flex items-center justify-center">
-                                       <IconGift size={24} className="text-amber-600" />
-                                   </div>
-                               ) : item.image ? (
-                                   <img src={item.image} className="w-full h-full object-cover" />
-                               ) : (
-                                   <div className={`w-full h-full ${getRandomColor(item.id)} flex items-center justify-center`}>
-                                       <IconBook size={24} />
-                                   </div>
-                               )}
-                            </div>
-                            
-                            <div className="flex-1 min-w-0">
-                              <div className="flex justify-between items-start mb-2">
-                                <h4 className="font-bold text-slate-900 truncate pr-2">{item.title}</h4>
-                                <button onClick={() => removeFromCart(item.cartId)} className="text-slate-400 hover:text-red-500 transition-colors">
-                                  <IconX size={16} />
-                                </button>
-                              </div>
-                              <p className="text-xs text-slate-500 mb-2 truncate">{item.author}</p>
-                              <div className="flex justify-between items-center mt-3">
-                                 <span className="font-bold gradient-text text-lg">€{item.price.toFixed(2)}</span>
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-
-                    {cart.length > 0 && (
-                      <div className="p-6 glass-dark border-t-2 border-white/20 space-y-6">
-                        <div className="flex justify-between items-center text-xl font-bold text-white">
-                          <span>Total</span>
-                          <span className="text-amber-300 text-2xl">€{cartTotal.toFixed(2)}</span>
-                        </div>
-                        <p className="text-xs text-white/70 text-center">
-                          You will be redirected to JotForm to complete payment via Stripe.
-                        </p>
-                        <button 
-                          onClick={verifyAndCheckout} // Changed: Now verifies before opening iframe
-                          disabled={verifying}
-                          className={`w-full py-5 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-900 rounded-xl font-bold text-lg hover:shadow-premium transition-all flex items-center justify-center gap-3 shadow-lg ${verifying ? 'opacity-80 cursor-wait' : ''}`}
-                        >
-                          {verifying ? (
-                              <>
-                                <span className="animate-spin mr-2"><IconLoader size={20} /></span>
-                                Checking availability...
-                              </>
-                          ) : (
-                              <>
-                                Proceed to Payment
-                                <IconExternalLink size={22} />
-                              </>
-                          )}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
-              
-              {/* --- Book Detail Modal (New!) --- */}
-              <BookDetailModal 
-                book={viewingBook} 
-                isOpen={!!viewingBook} 
-                onClose={() => setViewingBook(null)}
-                onAddToRegistry={addToCart}
-              />
-              
-              {/* --- Donation Modal (New!) --- */}
-              <DonationModal
-                isOpen={isDonationModalOpen}
-                onClose={() => setIsDonationModalOpen(false)}
-                onAddDonation={handleAddDonation}
-              />
-
-              {/* --- Modal: Success / Checkout Trigger --- */}
-              <Modal isOpen={showSuccessModal} onClose={handleContinueBrowsing}>
-                <div className="p-8 text-center">
-                    <div className="inline-block p-4 rounded-full bg-green-100 mb-4">
-                        <IconCheck size={48} className="text-green-600" />
-                    </div>
-                    <h3 className="text-2xl font-bold font-serif mb-2 text-slate-900">
-                        {lastAddedItem?.id === 'donation' ? 'Donation Added' : 'Book Selected'}
-                    </h3>
-                    <p className="text-slate-600 mb-8">
-                        {lastAddedItem && <span className="font-semibold text-slate-800 block mb-2">"{lastAddedItem.title} - €{lastAddedItem.price}"</span>}
-                        Would you like to checkout now?
-                    </p>
-                    
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <button 
-                            onClick={handleContinueBrowsing}
-                            className="px-6 py-3 rounded-xl border-2 border-slate-200 font-bold text-slate-600 hover:border-blue-500 hover:text-blue-600 transition-all flex items-center justify-center gap-2"
-                        >
-                            Continue Browsing
-                        </button>
-                        <button 
-                            onClick={verifyAndCheckout} // Changed to verification function
-                            disabled={verifying}
-                            className={`px-6 py-3 rounded-xl bg-gradient-to-r from-blue-800 to-blue-600 text-white font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2 ${verifying ? 'opacity-80 cursor-wait' : ''}`}
-                        >
-                            {verifying ? (
-                                <>Checking...</>
-                            ) : (
-                                <>
-                                Checkout Now
-                                <IconArrowRight size={20} />
-                                </>
-                            )}
-                        </button>
-                    </div>
-                </div>
-              </Modal>
-
-              {/* --- Checkout Modal (Iframe) --- */}
-              <CheckoutModal 
-                isOpen={isCheckoutOpen} 
-                onClose={() => setIsCheckoutOpen(false)}
-                cartTotal={cartTotal.toFixed(2)}
-                bookString={bookString}
-                donorName={donorName}
-                donationAmount={donationAmount}
-              />
-
-              {/* --- Notification Toast --- */}
-              <Notification 
-                show={!!notification} 
-                message={notification} 
-                onClose={() => setNotification(null)} 
-              />
               
             </div>
           );
